@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TEK17 Navigator Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">TEK17 Navigator</p>
+          <h1>Brannfaglig klassifisering med sporbar hjemmel</h1>
+        </div>
+        <div class="status-pill" id="flowStatus">Demo</div>
+      </header>
+
+      <nav class="tabs" aria-label="Hovedfaner">
+        <button type="button" class="tab-button active" data-tab="classify">Klassifisering</button>
+        <button type="button" class="tab-button" data-tab="advisor">TEK17-assistent</button>
+        <button type="button" class="tab-button" data-tab="library">Hjemler og fagstoff</button>
+      </nav>
+
+      <section class="tab-panel active" id="classifyTab">
+        <section class="workspace">
+          <aside class="reference-panel" aria-label="Ferdig klassifiserte byggtyper">
+            <div class="panel-heading">
+              <h2>Byggtyper</h2>
+              <p>Bruk som forslag. Kriteriene avgjør når bygget avviker.</p>
+            </div>
+            <div class="template-list" id="templateList"></div>
+          </aside>
+
+          <section class="form-panel" aria-label="Klassifiser nytt bygg">
+            <div class="panel-heading">
+              <h2>Nytt bygg</h2>
+              <p>Start med risikoklasse, gå videre til brannklasse og avslutt med tiltaksklasse.</p>
+            </div>
+
+            <form id="classificationForm">
+              <fieldset>
+                <legend>1. Risikoklasse</legend>
+
+                <label for="projectName">Prosjektnavn</label>
+                <input id="projectName" name="projectName" type="text" value="Demo bygg" />
+
+                <label for="usageType">Virksomhetstype</label>
+                <select id="usageType" name="usageType"></select>
+
+                <div class="checkbox-grid">
+                  <label class="check-row">
+                    <input type="checkbox" id="sporadicOccupancyOnly" />
+                    <span>Kun sporadisk personopphold</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="usersKnowEscapeRoutes" />
+                    <span>Brukerne kjenner rømningsforholdene</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="usersCanSelfEvacuate" />
+                    <span>Brukerne kan bringe seg selv i sikkerhet</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="overnightStay" />
+                    <span>Bygget er beregnet for overnatting</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="lowFireHazard" />
+                    <span>Forutsatt bruk medfører liten brannfare</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="doesNotFitStandardType" />
+                    <span>Bruken passer ikke godt med standard byggtype</span>
+                  </label>
+                </div>
+
+                <button type="button" class="primary-action" id="riskButton">
+                  Klassifiser risikoklasse
+                </button>
+              </fieldset>
+
+              <fieldset id="fireClassSection" disabled>
+                <legend>2. Brannklasse</legend>
+
+                <div class="input-row">
+                  <div>
+                    <label for="totalFloors">Totalt antall etasjer</label>
+                    <input id="totalFloors" name="totalFloors" type="number" min="1" value="2" />
+                  </div>
+                  <div>
+                    <label for="grossAreaPerFloor">Bruttoareal per etasje</label>
+                    <input id="grossAreaPerFloor" name="grossAreaPerFloor" type="number" min="0" value="450" />
+                  </div>
+                </div>
+
+                <div class="checkbox-grid">
+                  <label class="check-row">
+                    <input type="checkbox" id="directToTerrain" />
+                    <span>Bolig: hver boenhet har direkte utgang til terreng</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="rkl6DwellingTwoFloors" />
+                    <span>RKL 6: bygget er boligbygning i to etasjer</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="mainlyBelowGround" />
+                    <span>Byggverket ligger i hovedsak under terreng</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="criticalInfrastructure" />
+                    <span>Brann kan ramme vesentlige samfunnsinteresser</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="chemicalOrHazardousProduction" />
+                    <span>Kjemisk industri eller miljøfarlig produksjon</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="storesHazardousSubstances" />
+                    <span>Lagrer særlig brann-, helse- eller miljøfarlige stoffer</span>
+                  </label>
+                </div>
+
+                <button type="button" class="primary-action" id="fireButton">
+                  Klassifiser brannklasse
+                </button>
+              </fieldset>
+
+              <fieldset id="measureClassSection" disabled>
+                <legend>3. Tiltaksklasse</legend>
+
+                <p class="field-note">
+                  Tiltaksklasse er normalt en SAK10-vurdering for oppgaven/fagområdet, ikke en ren TEK17-klasse.
+                </p>
+
+                <div class="input-row">
+                  <div>
+                    <label for="complexityLevel">Kompleksitet og vanskelighetsgrad</label>
+                    <select id="complexityLevel">
+                      <option value="low">Lav</option>
+                      <option value="medium">Middels</option>
+                      <option value="high">Høy</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="failureConsequence">Konsekvens ved feil eller mangler</label>
+                    <select id="failureConsequence">
+                      <option value="small">Små konsekvenser</option>
+                      <option value="medium">Middels konsekvenser</option>
+                      <option value="large">Store konsekvenser</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="checkbox-grid">
+                  <label class="check-row">
+                    <input type="checkbox" id="usesOnlyPreacceptedSolutions" checked />
+                    <span>Brannkonseptet bygger i hovedsak på preaksepterte ytelser</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="requiresFireEngineeringAnalysis" />
+                    <span>Brannkonseptet krever analyse eller fraviksvurdering</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" id="multipleResponsibleDisciplines" />
+                    <span>Flere fagområder må samordnes tett</span>
+                  </label>
+                </div>
+
+                <button type="button" class="primary-action" id="measureButton">
+                  Foreslå tiltaksklasse
+                </button>
+              </fieldset>
+            </form>
+          </section>
+
+          <aside class="result-panel" aria-label="Resultat">
+            <div class="panel-heading">
+              <h2>Resultat</h2>
+              <p id="resultHint">Kjør risikoklasse først.</p>
+            </div>
+
+            <div class="result-card muted" id="riskResult">
+              <span class="result-label">Risikoklasse</span>
+              <strong>Ikke klassifisert</strong>
+            </div>
+
+            <div class="result-card muted" id="fireResult">
+              <span class="result-label">Brannklasse</span>
+              <strong>Venter på RKL</strong>
+            </div>
+
+            <div class="result-card muted" id="measureResult">
+              <span class="result-label">Tiltaksklasse</span>
+              <strong>Venter på BKL</strong>
+            </div>
+
+            <div class="reason-box" id="reasonBox">
+              <h3>Begrunnelse</h3>
+              <ul id="reasonList">
+                <li>Velg byggtype eller start med egne kriterier.</li>
+              </ul>
+            </div>
+
+            <button type="button" class="secondary-action hidden" id="lawButton">
+              Vis aktuelle hjemler
+            </button>
+          </aside>
+        </section>
+      </section>
+
+      <section class="tab-panel" id="advisorTab">
+        <section class="assistant-layout">
+          <div class="form-panel">
+            <div class="panel-heading">
+              <h2>TEK17-assistent</h2>
+              <p>Demo av en låst GPT-wrapper: svarer kun fra forhåndsdefinerte TEK17/SAK10-kilder og viser referanser.</p>
+            </div>
+
+            <label for="advisorQuestion">Hva lurer brukeren på?</label>
+            <textarea id="advisorQuestion" rows="7" placeholder="Eksempel: Hva avgjør risikoklasse for et hotell?"></textarea>
+
+            <div class="quick-prompts" aria-label="Eksempelspørsmål">
+              <button type="button" data-question="Hva avgjør risikoklasse?">Risikoklasse</button>
+              <button type="button" data-question="Hvordan finner jeg brannklasse?">Brannklasse</button>
+              <button type="button" data-question="Hva betyr tiltaksklasse?">Tiltaksklasse</button>
+              <button type="button" data-question="Hva gjør jeg ved blandet bruk?">Blandet bruk</button>
+            </div>
+
+            <button type="button" class="primary-action" id="advisorButton">
+              Spør TEK17-assistenten
+            </button>
+          </div>
+
+          <aside class="result-panel">
+            <div class="panel-heading">
+              <h2>Svar</h2>
+              <p>Svaret skal være kort, faglig og kildebundet.</p>
+            </div>
+            <div class="assistant-answer" id="advisorAnswer">
+              Skriv et spørsmål for å se hvordan den kontrollerte TEK17-assistenten kan oppføre seg.
+            </div>
+          </aside>
+        </section>
+      </section>
+
+      <section class="tab-panel" id="libraryTab">
+        <section class="library-layout">
+          <div class="panel-heading">
+            <h2>Hjemler og relevant fagstoff</h2>
+            <p>Samler lovhjemler, veiledning og brannfaglige artikler som appen kan referere til.</p>
+          </div>
+          <div class="library-grid" id="libraryGrid"></div>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="lawDialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Aktuelle hjemler</p>
+          <h2>Lovgrunnlag for klassifiseringen</h2>
+        </div>
+        <button type="button" class="icon-button" id="closeDialog" aria-label="Lukk">×</button>
+      </div>
+      <div id="lawContent" class="law-content"></div>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
