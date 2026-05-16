@@ -1,5 +1,18 @@
 const usageTypes = [
   {
+    id: "usikker",
+    name: "Usikker",
+    riskClass: null,
+    note: "Start med nøytrale kriterier og dokumenter vurderingen.",
+    criteria: {
+      sporadicOccupancyOnly: false,
+      usersKnowEscapeRoutes: true,
+      usersCanSelfEvacuate: true,
+      overnightStay: false,
+      lowFireHazard: true,
+    },
+  },
+  {
     id: "bolig",
     name: "Bolig",
     riskClass: 4,
@@ -120,7 +133,20 @@ const usageTypes = [
     id: "garasje",
     name: "Garasje",
     riskClass: 1,
-    note: "Sporadisk personopphold. Etasjeantall vurderes separat.",
+    note: "Sporadisk personopphold.",
+    criteria: {
+      sporadicOccupancyOnly: true,
+      usersKnowEscapeRoutes: true,
+      usersCanSelfEvacuate: true,
+      overnightStay: false,
+      lowFireHazard: true,
+    },
+  },
+  {
+    id: "en-etasje",
+    name: "Én etasje",
+    riskClass: 1,
+    note: "Forslag for enkel byggdel med sporadisk personopphold.",
     criteria: {
       sporadicOccupancyOnly: true,
       usersKnowEscapeRoutes: true,
@@ -134,19 +160,6 @@ const usageTypes = [
     name: "Annet",
     riskClass: null,
     note: "Brukes når virksomheten ikke finnes i listen.",
-    criteria: {
-      sporadicOccupancyOnly: false,
-      usersKnowEscapeRoutes: true,
-      usersCanSelfEvacuate: true,
-      overnightStay: false,
-      lowFireHazard: true,
-    },
-  },
-  {
-    id: "usikker",
-    name: "Usikker",
-    riskClass: null,
-    note: "Start med nøytrale kriterier og dokumenter vurderingen.",
     criteria: {
       sporadicOccupancyOnly: false,
       usersKnowEscapeRoutes: true,
@@ -239,7 +252,7 @@ function init() {
   renderTemplates();
   renderUsageOptions();
   renderLibrary();
-  applyUsagePreset("bolig");
+  applyUsagePreset("usikker");
 
   $("usageType").addEventListener("change", (event) => applyUsagePreset(event.target.value));
   $("templateToggle").addEventListener("click", toggleTemplatePanel);
@@ -322,7 +335,6 @@ function applyUsagePreset(usageId) {
     setBooleanChoice(key, value);
   });
   setBooleanChoice("doesNotFitStandardType", usage.id === "annet");
-  setBooleanChoice("singleFloorRisk", usage.id === "garasje");
 
   document.querySelectorAll("[data-template-id]").forEach((button) => {
     button.classList.toggle("active", button.dataset.templateId === usage.id);
@@ -343,7 +355,6 @@ function readRiskInput() {
     overnightStay: readBooleanChoice("overnightStay"),
     lowFireHazard: readBooleanChoice("lowFireHazard"),
     doesNotFitStandardType: readBooleanChoice("doesNotFitStandardType"),
-    singleFloorRisk: readBooleanChoice("singleFloorRisk"),
   };
 }
 
@@ -447,9 +458,8 @@ function describeRiskCriteria(input) {
   const selfRescue = input.usersCanSelfEvacuate ? "brukerne kan selvredde" : "brukerne kan ikke nødvendigvis selvredde";
   const overnight = input.overnightStay ? "overnatting" : "ikke overnatting";
   const fireHazard = input.lowFireHazard ? "liten brannfare" : "ikke liten / forhøyet brannfare";
-  const floorScope = input.singleFloorRisk ? "én etasje" : "flere etasjer eller ikke avklart";
 
-  return `Valgte kriterier: ${occupancy}, ${escapeKnowledge}, ${selfRescue}, ${overnight}, ${fireHazard}, ${floorScope}.`;
+  return `Valgte kriterier: ${occupancy}, ${escapeKnowledge}, ${selfRescue}, ${overnight}, ${fireHazard}.`;
 }
 
 function getCriteriaMismatches(input, preset) {
@@ -479,10 +489,6 @@ function getRiskInputWarnings(input) {
 
   if (!input.lowFireHazard && (!input.usersKnowEscapeRoutes || input.overnightStay)) {
     warnings.push("Forhøyet brannfare sammen med ukjente rømningsforhold eller overnatting passer dårlig i standardtabellen.");
-  }
-
-  if (input.usageType === "garasje" && !input.singleFloorRisk) {
-    warnings.push("Garasje er valgt uten at én etasje er bekreftet. Kontroller at risikoklasse 1 fortsatt er riktig.");
   }
 
   return warnings;
@@ -707,13 +713,6 @@ function renderResults() {
     ? reasons.map((reason) => `<li>${reason}</li>`).join("")
     : "<li>Velg byggtype eller start med egne kriterier.</li>";
 
-  $("flowStatus").textContent = state.measureResult
-    ? "Ferdig"
-    : state.fireResult
-      ? "BKL satt"
-      : state.riskResult
-        ? "RKL satt"
-        : "Demo";
 }
 
 function formatFireClass(value) {
