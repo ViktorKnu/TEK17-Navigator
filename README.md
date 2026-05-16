@@ -9,3 +9,12 @@ Demoen har tre faner:
 - Hjemler og relevant fagstoff
 
 Åpne `index.html` i nettleseren for å teste demoen.
+
+## Struktur
+
+```txt
+src/data/      regeldata, byggtyper og hjemler
+src/rules/     klassifiseringslogikk
+src/advisor/   mock for TEK17-assistent
+src/ui/        kobling mellom DOM og regelmotor
+```
