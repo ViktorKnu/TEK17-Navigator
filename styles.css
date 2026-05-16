@@ -278,6 +278,27 @@ select {
   gap: 8px;
 }
 
+.criteria-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.choice-field {
+  background: #fbfcfe;
+  border: 1px solid #e2e7ef;
+  border-radius: 7px;
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+}
+
+.choice-field span {
+  color: #2c3a49;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
 .check-row {
   align-items: start;
   background: #fbfcfe;
@@ -565,6 +586,10 @@ dialog::backdrop {
   }
 
   .input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .criteria-grid {
     grid-template-columns: 1fr;
   }
 

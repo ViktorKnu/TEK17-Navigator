@@ -303,9 +303,9 @@ function applyUsagePreset(usageId) {
 
   $("usageType").value = usage.id;
   Object.entries(usage.criteria).forEach(([key, value]) => {
-    $(key).checked = value;
+    setBooleanChoice(key, value);
   });
-  $("doesNotFitStandardType").checked = usage.id === "annet";
+  setBooleanChoice("doesNotFitStandardType", usage.id === "annet");
 
   document.querySelectorAll("[data-template-id]").forEach((button) => {
     button.classList.toggle("active", button.dataset.templateId === usage.id);
@@ -320,12 +320,12 @@ function applyUsagePreset(usageId) {
 function readRiskInput() {
   return {
     usageType: $("usageType").value,
-    sporadicOccupancyOnly: $("sporadicOccupancyOnly").checked,
-    usersKnowEscapeRoutes: $("usersKnowEscapeRoutes").checked,
-    usersCanSelfEvacuate: $("usersCanSelfEvacuate").checked,
-    overnightStay: $("overnightStay").checked,
-    lowFireHazard: $("lowFireHazard").checked,
-    doesNotFitStandardType: $("doesNotFitStandardType").checked,
+    sporadicOccupancyOnly: readBooleanChoice("sporadicOccupancyOnly"),
+    usersKnowEscapeRoutes: readBooleanChoice("usersKnowEscapeRoutes"),
+    usersCanSelfEvacuate: readBooleanChoice("usersCanSelfEvacuate"),
+    overnightStay: readBooleanChoice("overnightStay"),
+    lowFireHazard: readBooleanChoice("lowFireHazard"),
+    doesNotFitStandardType: readBooleanChoice("doesNotFitStandardType"),
   };
 }
 
@@ -333,25 +333,52 @@ function classifyRisk() {
   const input = readRiskInput();
   const usage = usageTypes.find((item) => item.id === input.usageType);
   const reasons = [];
-  let value = usage?.riskClass ?? null;
+  const derivedValue = deriveRiskClassFromCriteria(input);
+  const mismatches = usage?.criteria ? getCriteriaMismatches(input, usage.criteria) : [];
+  const warnings = getRiskInputWarnings(input);
+  const standardMatch = Boolean(usage?.riskClass && !input.doesNotFitStandardType && mismatches.length === 0);
+  let value = standardMatch ? usage.riskClass : derivedValue;
   let confidence = "preaccepted";
 
-  if (usage?.riskClass && !input.doesNotFitStandardType) {
+  reasons.push(describeRiskCriteria(input));
+
+  if (standardMatch) {
     reasons.push(`${usage.name} er angitt som risikoklasse ${usage.riskClass} i TEK17-veiledningens virksomhetstabell.`);
   } else {
     confidence = "requires-assessment";
-    value = deriveRiskClassFromCriteria(input);
-    reasons.push("Virksomheten er vurdert etter kriteriene i risikoklassetabellen.");
-    reasons.push("Resultatet bør begrunnes og dokumenteres fordi standard byggtype ikke er dekkende.");
+    if (derivedValue) {
+      reasons.push(`Flervalget peker mot risikoklasse ${derivedValue} etter kriteriene i TEK17 § 11-2.`);
+      value = derivedValue;
+    } else if (usage?.riskClass) {
+      reasons.push(`${usage.name} har normalt risikoklasse ${usage.riskClass}, men kriteriene treffer ikke rent i tabellen.`);
+      value = usage.riskClass;
+    } else {
+      reasons.push("Kriteriene treffer ikke rent i den preaksepterte tabellen.");
+    }
   }
 
-  if (input.doesNotFitStandardType && usage?.riskClass) {
+  if (mismatches.length) {
     confidence = "requires-assessment";
-    reasons.push("Brukeren har markert at bruken ikke passer godt med standard byggtype.");
+    reasons.push(`Valgene avviker fra malen for ${usage.name}: ${mismatches.join(", ")}.`);
   }
 
-  if (!value) {
-    reasons.push("Kriteriene treffer ikke rent i den preaksepterte tabellen. Manuell vurdering kreves.");
+  if (usage?.riskClass && derivedValue && derivedValue !== usage.riskClass) {
+    confidence = "requires-assessment";
+    reasons.push(`Byggtypen foreslår RKL ${usage.riskClass}, mens kriteriene peker mot RKL ${derivedValue}. Kriteriene bør dokumenteres.`);
+  }
+
+  if (input.doesNotFitStandardType) {
+    confidence = "requires-assessment";
+    reasons.push("Brukeren har markert at bruken avviker fra standard byggtype.");
+  }
+
+  if (warnings.length) {
+    confidence = "requires-assessment";
+    reasons.push(...warnings);
+  }
+
+  if (!value || confidence === "requires-assessment") {
+    reasons.push("Resultatet bør kontrolleres av fagperson og dokumenteres med valgt hjemmel.");
   }
 
   state.riskResult = {
@@ -379,6 +406,56 @@ function deriveRiskClassFromCriteria(input) {
   if (!input.sporadicOccupancyOnly && !selfRescue && input.overnightStay && input.lowFireHazard) return 6;
 
   return null;
+}
+
+function setBooleanChoice(id, value) {
+  $(id).value = value ? "true" : "false";
+}
+
+function readBooleanChoice(id) {
+  return $(id).value === "true";
+}
+
+function describeRiskCriteria(input) {
+  const occupancy = input.sporadicOccupancyOnly ? "kun sporadisk personopphold" : "ikke bare sporadisk personopphold";
+  const escapeKnowledge = input.usersKnowEscapeRoutes ? "brukerne kjenner rømningsforholdene" : "brukerne kjenner normalt ikke rømningsforholdene";
+  const selfRescue = input.usersCanSelfEvacuate ? "brukerne kan selvredde" : "brukerne kan ikke nødvendigvis selvredde";
+  const overnight = input.overnightStay ? "overnatting" : "ikke overnatting";
+  const fireHazard = input.lowFireHazard ? "liten brannfare" : "ikke liten / forhøyet brannfare";
+
+  return `Valgte kriterier: ${occupancy}, ${escapeKnowledge}, ${selfRescue}, ${overnight}, ${fireHazard}.`;
+}
+
+function getCriteriaMismatches(input, preset) {
+  const labels = {
+    sporadicOccupancyOnly: "personopphold",
+    usersKnowEscapeRoutes: "kjennskap til rømningsforhold",
+    usersCanSelfEvacuate: "evne til selvredning",
+    overnightStay: "overnatting",
+    lowFireHazard: "brannfare",
+  };
+
+  return Object.keys(labels)
+    .filter((key) => input[key] !== preset[key])
+    .map((key) => labels[key]);
+}
+
+function getRiskInputWarnings(input) {
+  const warnings = [];
+
+  if (input.sporadicOccupancyOnly && input.overnightStay) {
+    warnings.push("Sporadisk personopphold kombinert med overnatting er uvanlig og bør vurderes særskilt.");
+  }
+
+  if (input.usersKnowEscapeRoutes && !input.usersCanSelfEvacuate) {
+    warnings.push("Brukerne kan kjenne rømningsforholdene, men manglende evne til selvredning trekker vurderingen opp.");
+  }
+
+  if (!input.lowFireHazard && (!input.usersKnowEscapeRoutes || input.overnightStay)) {
+    warnings.push("Forhøyet brannfare sammen med ukjente rømningsforhold eller overnatting passer dårlig i standardtabellen.");
+  }
+
+  return warnings;
 }
 
 function readFireInput() {

@@ -48,30 +48,48 @@
                 <label for="usageType">Virksomhetstype</label>
                 <select id="usageType" name="usageType"></select>
 
-                <div class="checkbox-grid">
-                  <label class="check-row">
-                    <input type="checkbox" id="sporadicOccupancyOnly" />
-                    <span>Kun sporadisk personopphold</span>
+                <div class="criteria-grid">
+                  <label class="choice-field" for="sporadicOccupancyOnly">
+                    <span>Personopphold</span>
+                    <select id="sporadicOccupancyOnly">
+                      <option value="false">Regelmessig eller forventet opphold</option>
+                      <option value="true">Kun sporadisk personopphold</option>
+                    </select>
                   </label>
-                  <label class="check-row">
-                    <input type="checkbox" id="usersKnowEscapeRoutes" />
-                    <span>Brukerne kjenner rømningsforholdene</span>
+                  <label class="choice-field" for="usersKnowEscapeRoutes">
+                    <span>Kjennskap til rømningsforhold</span>
+                    <select id="usersKnowEscapeRoutes">
+                      <option value="true">Brukerne kjenner rømningsforholdene</option>
+                      <option value="false">Brukerne kjenner normalt ikke rømningsforholdene</option>
+                    </select>
                   </label>
-                  <label class="check-row">
-                    <input type="checkbox" id="usersCanSelfEvacuate" />
-                    <span>Brukerne kan bringe seg selv i sikkerhet</span>
+                  <label class="choice-field" for="usersCanSelfEvacuate">
+                    <span>Evne til selvredning</span>
+                    <select id="usersCanSelfEvacuate">
+                      <option value="true">Brukerne kan bringe seg selv i sikkerhet</option>
+                      <option value="false">Brukerne kan ikke nødvendigvis bringe seg selv i sikkerhet</option>
+                    </select>
                   </label>
-                  <label class="check-row">
-                    <input type="checkbox" id="overnightStay" />
-                    <span>Bygget er beregnet for overnatting</span>
+                  <label class="choice-field" for="overnightStay">
+                    <span>Overnatting</span>
+                    <select id="overnightStay">
+                      <option value="false">Ikke beregnet for overnatting</option>
+                      <option value="true">Beregnet for overnatting</option>
+                    </select>
                   </label>
-                  <label class="check-row">
-                    <input type="checkbox" id="lowFireHazard" />
-                    <span>Forutsatt bruk medfører liten brannfare</span>
+                  <label class="choice-field" for="lowFireHazard">
+                    <span>Brannfare ved forutsatt bruk</span>
+                    <select id="lowFireHazard">
+                      <option value="true">Liten brannfare</option>
+                      <option value="false">Ikke liten / forhøyet brannfare</option>
+                    </select>
                   </label>
-                  <label class="check-row">
-                    <input type="checkbox" id="doesNotFitStandardType" />
-                    <span>Bruken passer ikke godt med standard byggtype</span>
+                  <label class="choice-field" for="doesNotFitStandardType">
+                    <span>Treff på standard byggtype</span>
+                    <select id="doesNotFitStandardType">
+                      <option value="false">Standard byggtype passer</option>
+                      <option value="true">Avviker fra standard byggtype</option>
+                    </select>
                   </label>
                 </div>
 
