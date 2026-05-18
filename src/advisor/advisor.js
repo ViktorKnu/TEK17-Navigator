@@ -18,7 +18,7 @@ window.TEK17Advisor.answerQuestion = function answerQuestion(question, legalRefe
   return `
     <p><strong>Spørsmål:</strong> ${escapeHtml(question)}</p>
     ${answer}
-    <p class="field-note">Demoen simulerer en GPT-wrapper. I produksjon bør modellen bare få svare fra godkjente kilder, med sitater/referanser og tydelig usikkerhet.</p>
+    <p class="field-note">Assistenten er avgrenset til godkjente kilder. Svarene skal vise referanser og markere usikkerhet når grunnlaget ikke er entydig.</p>
   `;
 };
 

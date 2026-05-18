@@ -21,6 +21,12 @@ function risk(usageId) {
   return rules.classifyRisk(input, usage, data.legalReferences);
 }
 
+function riskWithOverrides(usageId, overrides) {
+  const usage = data.usageTypes.find((item) => item.id === usageId);
+  const input = { usageType: usageId, ...usage.criteria, doesNotFitStandardType: false, ...overrides };
+  return rules.classifyRisk(input, usage, data.legalReferences);
+}
+
 function fire(usageId, totalFloors, extra = {}) {
   const usage = data.usageTypes.find((item) => item.id === usageId);
   const riskResult = risk(usageId);
@@ -58,6 +64,9 @@ function expect(label, actual, expected) {
 for (const usage of data.usageTypes.filter((item) => item.riskClass)) {
   expect(`${usage.name} -> RKL ${usage.riskClass}`, risk(usage.id).value, usage.riskClass);
 }
+
+expect("Bolig med ukjente romningsforhold -> kriterier peker mot RKL 6", riskWithOverrides("bolig", { usersKnowEscapeRoutes: false }).value, 6);
+expect("Kontor med overnatting og hoy brannfare -> manuell vurdering", riskWithOverrides("kontor", { overnightStay: true }).value, null);
 
 // BKL normal table from TEK17 § 11-3 tabell 1.
 expect("RKL 1 / 1 etasje -> ingen BKL", fire("garasje-en-etasje", 1).fireResult.finalValue, null);

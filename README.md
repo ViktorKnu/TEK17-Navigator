@@ -1,14 +1,14 @@
 # TEK17-Navigator
 
-Statisk demo/mock for TEK17 Navigator.
+Statisk førsteversjon av TEK17 Navigator.
 
-Demoen har tre faner:
+Applikasjonen har tre faner:
 
 - Klassifisering av risikoklasse, brannklasse og tiltaksklasse
-- TEK17-assistent som simulerer en kontrollert GPT-wrapper med kildereferanser
+- TEK17-assistent med kontrollert svarflate og kildereferanser
 - Hjemler og relevant fagstoff
 
-Åpne `index.html` i nettleseren for å teste demoen.
+Åpne `index.html` i nettleseren for å teste applikasjonen.
 
 Kjør scenario-testene:
 
@@ -21,6 +21,6 @@ node tests/scenario-tests.js
 ```txt
 src/data/      regeldata, byggtyper og hjemler
 src/rules/     klassifiseringslogikk
-src/advisor/   mock for TEK17-assistent
+src/advisor/   kontrollert TEK17-assistent
 src/ui/        kobling mellom DOM og regelmotor
 ```

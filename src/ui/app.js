@@ -20,9 +20,18 @@ let state = {
 };
 
 const $ = (id) => document.getElementById(id);
+const riskCriteriaIds = [
+  "sporadicOccupancyOnly",
+  "usersKnowEscapeRoutes",
+  "usersCanSelfEvacuate",
+  "overnightStay",
+  "lowFireHazard",
+  "doesNotFitStandardType",
+];
 
 function init() {
   bindTabs();
+  bindRiskCriteria();
   renderTemplates();
   renderUsageOptions();
   renderLibrary();
@@ -75,6 +84,16 @@ function init() {
     button.addEventListener("click", () => {
       $("advisorQuestion").value = button.dataset.question;
       answerAdvisorQuestion();
+    });
+  });
+}
+
+function bindRiskCriteria() {
+  riskCriteriaIds.forEach((id) => {
+    $(id).addEventListener("change", () => {
+      if (state.riskResult) {
+        classifyRisk();
+      }
     });
   });
 }
@@ -353,7 +372,7 @@ function renderResults() {
       <span>Forslag for brannkonsept/oppgave</span>
     `;
     reasons.push(...state.measureResult.reasons);
-    $("resultHint").textContent = "Klassifisering ferdig. Hjemmel er tilgjengelig.";
+    $("resultHint").textContent = "Klassifiseringen er klar. Hjemmel er tilgjengelig.";
   } else {
     measureEl.className = "result-card muted";
     measureEl.innerHTML = `<span class="result-label">Tiltaksklasse</span><strong>${state.fireResult ? "Ikke vurdert" : "Venter på BKL"}</strong>`;

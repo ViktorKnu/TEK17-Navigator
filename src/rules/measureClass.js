@@ -20,7 +20,7 @@ window.TEK17Rules.classifyMeasure = function classifyMeasure(input, riskResult, 
 
   reasons.push(`Oppgaven vurderes med ${labelComplexity(input.complexity).toLowerCase()} kompleksitet og ${labelConsequence(input.consequence).toLowerCase()}.`);
   if (input.preaccepted && !input.analysis) reasons.push("Brannkonseptet bygger i hovedsak på preaksepterte ytelser.");
-  if (input.analysis) reasons.push("Analyse eller fraviksvurdering trekker tiltaket opp i tiltaksklasse 3 i denne demoen.");
+  if (input.analysis) reasons.push("Analyse eller fraviksvurdering trekker tiltaket opp i tiltaksklasse 3.");
   if (input.coordination) reasons.push("Tett samordning mellom flere fagområder trekker vurderingen opp.");
   if (fireResult.finalValue === 4) reasons.push("BKL 4 er en sterk indikator på høy konsekvens og behov for særskilt dokumentasjon.");
 

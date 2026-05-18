@@ -19,8 +19,8 @@ window.TEK17Rules.classifyRisk = function classifyRisk(input, usage, legalRefere
       reasons.push(`Flervalget peker mot risikoklasse ${derivedValue} etter kriteriene i TEK17 § 11-2.`);
       value = derivedValue;
     } else if (usage?.riskClass) {
-      reasons.push(`${usage.name} har normalt risikoklasse ${usage.riskClass}, men kriteriene treffer ikke rent i tabellen.`);
-      value = usage.riskClass;
+      reasons.push(`${usage.name} har normalt risikoklasse ${usage.riskClass}, men de endrede kriteriene treffer ikke rent i tabellen.`);
+      value = mismatches.length || input.doesNotFitStandardType ? null : usage.riskClass;
     } else {
       reasons.push("Kriteriene treffer ikke rent i den preaksepterte tabellen.");
     }
