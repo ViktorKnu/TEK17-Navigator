@@ -256,6 +256,7 @@ function readFireInput() {
 
 function readMeasureInput() {
   return {
+    taskType: $("measureTaskType").value,
     complexity: $("complexityLevel").value,
     consequence: $("failureConsequence").value,
     preaccepted: $("usesOnlyPreacceptedSolutions").checked,
@@ -354,12 +355,13 @@ function renderResults() {
   }
 
   if (state.fireResult) {
-    const variant = state.fireResult.finalValue === 4 ? "danger" : "good";
+    const variant = getFireCardVariant(state.fireResult);
     fireEl.className = `result-card ${variant}`;
     fireEl.innerHTML = `
       <span class="result-label">Brannklasse</span>
       <strong>${formatFireClass(state.fireResult.finalValue)}</strong>
-      <span>${state.fireResult.confidence === "requires-analysis" ? "Analyse kreves" : "Preakseptert forslag"}</span>
+      <span class="result-status">${formatFireStatus(state.fireResult)}</span>
+      ${renderFireDecisionDetails(state.fireResult)}
     `;
     reasons.push(...state.fireResult.reasons);
     $("resultHint").textContent = "Brannklasse er satt. Vurder tiltaksklasse for oppgaven.";
@@ -369,11 +371,12 @@ function renderResults() {
   }
 
   if (state.measureResult) {
-    measureEl.className = `result-card ${state.measureResult.value === 3 ? "warn" : "good"}`;
+    measureEl.className = `result-card ${getMeasureCardVariant(state.measureResult)}`;
     measureEl.innerHTML = `
       <span class="result-label">Tiltaksklasse</span>
       <strong>TKL ${state.measureResult.value}</strong>
-      <span>Forslag for brannkonsept/oppgave</span>
+      <span class="result-status">${state.measureResult.statusLabel}</span>
+      ${renderMeasureDecisionDetails(state.measureResult)}
     `;
     reasons.push(...state.measureResult.reasons);
     $("resultHint").textContent = "Klassifiseringen er klar. Hjemmel er tilgjengelig.";
@@ -436,6 +439,45 @@ function renderRiskDecisionDetails(result) {
 function renderManualRiskControl(result) {
   const shouldShow = result?.status === "manual-assessment" || result?.status === "manual-override";
   $("manualRiskControl").classList.toggle("hidden", !shouldShow);
+}
+
+function getFireCardVariant(result) {
+  if (result.finalValue === 4) return "danger";
+  return result.status === "preaccepted-exception" ? "warn" : "good";
+}
+
+function formatFireStatus(result) {
+  return result.statusLabel ?? (result.confidence === "requires-analysis" ? "Analyse kreves" : "Preakseptert forslag");
+}
+
+function renderFireDecisionDetails(result) {
+  const triggerText = result.analysisTriggerLabels?.length
+    ? `<span>BKL 4-trigger: ${result.analysisTriggerLabels.join(", ")}</span>`
+    : "";
+
+  return `
+    <div class="risk-decision">
+      <span>${result.tableBasis}</span>
+      <span>Særregel: ${result.specialRuleLabel}</span>
+      ${triggerText}
+    </div>
+  `;
+}
+
+function getMeasureCardVariant(result) {
+  if (result.value === 3) return "warn";
+  return result.value === 2 ? "warn" : "good";
+}
+
+function renderMeasureDecisionDetails(result) {
+  const driverText = result.drivers?.length ? result.drivers.join(", ") : "Ingen forhold trekker opp";
+
+  return `
+    <div class="risk-decision">
+      <span>Oppgave: ${result.taskLabel}</span>
+      <span>Utslag: ${driverText}</span>
+    </div>
+  `;
 }
 
 function showLegalBasis() {
@@ -515,20 +557,16 @@ function renderRiskLegalTrace(result) {
 function renderFireLegalTrace(result, riskResult) {
   if (!result) return "";
 
-  const specialRule = result.matchedAnalysisTriggers?.length
-    ? "BKL 4-forhold må dokumenteres ved analyse"
-    : result.matchedException
-      ? "Unntak fra normal tabell slo inn"
-      : "Normal tabell er brukt";
-
   return `
     <article class="law-item decision-trace">
       <span class="tag">TEK17 § 11-3</span>
       <h3>Brannklassegrunnlag</h3>
       <div class="trace-grid">
-        ${renderTraceRow("Normal tabell", `${formatFireClass(result.normalValue)} for RKL ${riskResult?.value ?? "-"} og valgt etasjeantall`)}
-        ${renderTraceRow("Særregel", specialRule)}
+        ${renderTraceRow("Normal tabell", result.tableBasis ?? `${formatFireClass(result.normalValue)} for RKL ${riskResult?.value ?? "-"} og valgt etasjeantall`)}
+        ${renderTraceRow("Særregel", result.specialRuleLabel ?? "Normal tabell er brukt")}
+        ${result.analysisTriggerLabels?.length ? renderTraceRow("BKL 4-trigger", result.analysisTriggerLabels.join(", ")) : ""}
         ${renderTraceRow("Resultat", formatFireClass(result.finalValue))}
+        ${renderTraceRow("Status", formatFireStatus(result))}
       </div>
       ${renderReasonList(result.reasons)}
     </article>
@@ -543,8 +581,10 @@ function renderMeasureLegalTrace(result) {
       <span class="tag">SAK10 §§ 9-3 og 9-4</span>
       <h3>Tiltaksklassegrunnlag</h3>
       <div class="trace-grid">
+        ${renderTraceRow("Oppgave", result.taskLabel)}
         ${renderTraceRow("Resultat", `TKL ${result.value}`)}
-        ${renderTraceRow("Status", result.confidence)}
+        ${renderTraceRow("Utslag", result.drivers?.length ? result.drivers.join(", ") : "Ingen forhold trekker opp")}
+        ${renderTraceRow("Status", result.statusLabel)}
       </div>
       ${renderReasonList(result.reasons)}
     </article>

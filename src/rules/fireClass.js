@@ -6,29 +6,42 @@ window.TEK17Rules.classifyFire = function classifyFire(input, usage, riskResult,
   const bkl4Triggers = analysisTriggers.filter((trigger) => trigger.applies(input, context));
 
   if (bkl4Triggers.length) {
+    const normalValue = getNormalFireClass(riskResult.value, input.totalFloors, fireClassTable);
     return {
-      normalValue: getNormalFireClass(riskResult.value, input.totalFloors, fireClassTable),
+      normalValue,
       finalValue: 4,
       confidence: "requires-analysis",
+      status: "requires-analysis",
+      statusLabel: "BKL 4 / analyse",
+      tableBasis: `Normal tabell gir ${formatFireClass(normalValue)} for RKL ${riskResult.value} og ${input.totalFloors} etasje(r).`,
+      specialRuleLabel: "BKL 4-forhold må dokumenteres ved analyse",
       reasons: [
+        `Normal tabell gir ${formatFireClass(normalValue)} for RKL ${riskResult.value} og ${input.totalFloors} etasje(r).`,
         ...bkl4Triggers.map((trigger) => `${trigger.reason} (${trigger.sourcePoint})`),
         "Konsekvensen ved brann kan bli særlig stor, og sikkerheten må dokumenteres ved analyse.",
       ],
       legalBasis: [...legalBasis, legalReferences.exceptions],
       matchedException: null,
+      matchedExceptionLabel: null,
       matchedAnalysisTriggers: bkl4Triggers.map((trigger) => trigger.id),
+      analysisTriggerLabels: bkl4Triggers.map((trigger) => trigger.reason),
     };
   }
 
   const normalValue = getNormalFireClass(riskResult.value, input.totalFloors, fireClassTable);
   let finalValue = normalValue;
   let confidence = "preaccepted";
-  const reasons = [`Normal tabell gir ${formatFireClass(normalValue)} for RKL ${riskResult.value} og ${input.totalFloors} etasje(r).`];
+  let status = "normal-table";
+  let specialRuleLabel = "Normal tabell er brukt";
+  const tableBasis = `Normal tabell gir ${formatFireClass(normalValue)} for RKL ${riskResult.value} og ${input.totalFloors} etasje(r).`;
+  const reasons = [tableBasis];
 
   const exception = exceptions.find((item) => item.applies(input, context));
   if (exception) {
     finalValue = exception.resultValue;
     confidence = "preaccepted-exception";
+    status = "preaccepted-exception";
+    specialRuleLabel = exception.label;
     reasons.push(`Unntak som slo inn: ${exception.label}.`);
     reasons.push(`${exception.reason} (${exception.sourcePoint})`);
     legalBasis.push(legalReferences[exception.legalBasisKey]);
@@ -38,10 +51,16 @@ window.TEK17Rules.classifyFire = function classifyFire(input, usage, riskResult,
     normalValue,
     finalValue,
     confidence,
+    status,
+    statusLabel: status === "preaccepted-exception" ? "Unntak fra normal tabell" : "Normal tabell",
+    tableBasis,
+    specialRuleLabel,
     reasons,
     legalBasis,
     matchedException: exception?.id ?? null,
+    matchedExceptionLabel: exception?.label ?? null,
     matchedAnalysisTriggers: [],
+    analysisTriggerLabels: [],
   };
 };
 

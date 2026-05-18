@@ -10,6 +10,7 @@ require(path.join(root, "src/data/fireClassTable.js"));
 require(path.join(root, "src/data/fireClassExceptions.js"));
 require(path.join(root, "src/rules/riskClass.js"));
 require(path.join(root, "src/rules/fireClass.js"));
+require(path.join(root, "src/rules/measureClass.js"));
 
 const data = global.TEK17Data;
 const rules = global.TEK17Rules;
@@ -56,6 +57,24 @@ function fire(usageId, totalFloors, extra = {}) {
   };
 }
 
+function measure(usageId, totalFloors, measureInput = {}, fireExtra = {}) {
+  const { riskResult, fireResult } = fire(usageId, totalFloors, fireExtra);
+  return rules.classifyMeasure(
+    {
+      taskType: "fire-concept",
+      complexity: "low",
+      consequence: "small",
+      preaccepted: true,
+      analysis: false,
+      coordination: false,
+      ...measureInput,
+    },
+    riskResult,
+    fireResult,
+    data.legalReferences,
+  );
+}
+
 function expect(label, actual, expected) {
   checks.push({ label, actual, expected, ok: actual === expected });
 }
@@ -84,13 +103,20 @@ expect("Hotell RKL 6 / 5 etasjer -> BKL 3", fire("hotell", 5).fireResult.finalVa
 
 // Exceptions from TEK17 § 11-3 preaksepterte ytelser nr. 3-7.
 expect("Bolig RKL4 3 etasjer direkte terreng -> BKL 1 unntak", fire("bolig", 3, { directToTerrain: true }).fireResult.finalValue, 1);
+expect("Bolig RKL4 3 etasjer direkte terreng -> BKL unntaksstatus", fire("bolig", 3, { directToTerrain: true }).fireResult.status, "preaccepted-exception");
 expect("Salgslokale 2 etasjer <800 m2 -> BKL 1 unntak", fire("salgslokale", 2, { grossAreaPerFloor: 799 }).fireResult.finalValue, 1);
 expect("Forsamlingslokale 2 etasjer 800 m2 -> normal BKL 2", fire("forsamlingslokale", 2, { grossAreaPerFloor: 800 }).fireResult.finalValue, 2);
 expect("Hotell 2 etasjer <300 m2 -> BKL 1 unntak", fire("hotell", 2, { grossAreaPerFloor: 299 }).fireResult.finalValue, 1);
 expect("Hotell 2 etasjer 300 m2 -> normal BKL 2", fire("hotell", 2, { grossAreaPerFloor: 300 }).fireResult.finalValue, 2);
 expect("RKL6 bolig 2 etasjer flagg -> BKL 1 unntak", fire("tilrettelagt-bolig", 2, { rkl6DwellingTwoFloors: true }).fireResult.finalValue, 1);
 expect("BKL4 trigger >16 etasjer -> BKL 4", fire("kontor", 17).fireResult.finalValue, 4);
+expect("BKL4 trigger >16 etasjer -> analysestatus", fire("kontor", 17).fireResult.status, "requires-analysis");
 expect("BKL4 trigger under terreng -> BKL 4", fire("kontor", 2, { mainlyBelowGround: true }).fireResult.finalValue, 4);
+
+expect("Tiltaksklasse enkel preakseptert oppgave -> TKL 1", measure("kontor", 2).value, 1);
+expect("Tiltaksklasse BKL 3 -> TKL 2", measure("kontor", 5, { taskType: "fire-detailing" }).value, 2);
+expect("Tiltaksklasse analyse -> TKL 3", measure("kontor", 2, { analysis: true }).value, 3);
+expect("Tiltaksklasse RKL 6 -> TKL 3", measure("hotell", 2).value, 3);
 
 for (const check of checks) {
   console.log(`${check.ok ? "PASS" : "FAIL"} | ${check.label} | expected=${check.expected} actual=${check.actual}`);
