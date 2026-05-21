@@ -1,6 +1,13 @@
 window.TEK17Data = window.TEK17Data || {};
 
 window.TEK17Data.legalReferences = {
+  tek17: {
+    title: "TEK17 Byggteknisk forskrift",
+    tag: "TEK17",
+    url: "https://www.dibk.no/regelverk/byggteknisk-forskrift-tek17",
+    summary:
+      "Byggteknisk forskrift (TEK17) er forskriften med tekniske krav til byggverk. For brannsikkerhet brukes særlig kapittel 11 Sikkerhet ved brann.",
+  },
   risk: {
     title: "TEK17 § 11-2 Risikoklasser",
     tag: "TEK17",
@@ -46,6 +53,7 @@ window.TEK17Data.legalReferences = {
 };
 
 window.TEK17Data.libraryItems = [
+  window.TEK17Data.legalReferences.tek17,
   window.TEK17Data.legalReferences.risk,
   window.TEK17Data.legalReferences.fire,
   window.TEK17Data.legalReferences.exceptions,

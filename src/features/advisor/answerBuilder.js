@@ -2,7 +2,7 @@ window.TEK17Advisor = window.TEK17Advisor || {};
 
 window.TEK17Advisor.buildAnswer = function buildAnswer(question, matchedSources, legalReferences) {
   if (!question.trim()) {
-    return "Skriv inn et spørsmål først.";
+    return `<p class="assistant-empty">Skriv inn et spørsmål først.</p>`;
   }
 
   if (!matchedSources.length) {
@@ -10,8 +10,8 @@ window.TEK17Advisor.buildAnswer = function buildAnswer(question, matchedSources,
       <p><strong>Spørsmål:</strong> ${escapeHtml(question)}</p>
       <section>
         <h3>Utenfor kildegrunnlaget</h3>
-        <p>Dette spørsmålet treffer ikke de TEK17/SAK10-kildene som er koblet til assistenten ennå.</p>
-        <p>Prøv å spørre om risikoklasse, brannklasse, tiltaksklasse, blandet bruk, unntak eller BKL 4.</p>
+        <p><strong>Kort svar:</strong> Dette spørsmålet treffer ikke de TEK17/SAK10-kildene som er koblet til assistenten ennå.</p>
+        <p><strong>Hva du kan spørre om:</strong> Prøv risikoklasse, brannklasse, tiltaksklasse, blandet bruk, unntak, BKL 4 eller hva TEK17 er.</p>
       </section>
       ${boundaryNote()}
     `;
@@ -33,7 +33,9 @@ function renderSourceAnswer(source, legalReferences) {
       <p><strong>Kort svar:</strong> ${source.shortAnswer}</p>
       <p><strong>I praksis:</strong> ${source.practicalMeaning}</p>
       <p><strong>Vurder nærmere:</strong> ${source.assessmentNote}</p>
-      ${refs.map(referenceLink).join("")}
+      <div class="source-list">
+        ${refs.map(referenceLink).join("")}
+      </div>
     </section>
   `;
 }
@@ -44,7 +46,7 @@ function getReferences(source, legalReferences) {
 }
 
 function referenceLink(ref) {
-  return `<p class="source-line">Kilde: <a href="${ref.url}" target="_blank" rel="noreferrer">${ref.title}</a></p>`;
+  return `<p class="source-line"><span>Kilde</span><a href="${ref.url}" target="_blank" rel="noreferrer">${ref.title}</a></p>`;
 }
 
 function boundaryNote() {

@@ -22,6 +22,11 @@ function expectIncludes(label, actual, expected) {
 
 (async () => {
   expectIncludes(
+    "TEK17-spørsmål henter grunnkilde",
+    await advisor.answerQuestion("Hva er TEK17?", data.legalReferences),
+    "byggteknisk forskrift",
+  );
+  expectIncludes(
     "Risikoklasse-spørsmål henter RKL-kilde",
     await advisor.answerQuestion("Hva avgjør risikoklasse for hotell?", data.legalReferences),
     "Risikoklasse",
@@ -56,13 +61,17 @@ function expectIncludes(label, actual, expected) {
   advisor.localLlmConfig.enabled = true;
   advisor.localLlmConfig.autoPull = true;
   advisor.localLlmConfig.baseUrl = "http://ollama.test";
+  const statusEvents = [];
+  advisor.localLlmConfig.onStatus = (event) => statusEvents.push(event.kind);
   advisor.resetLocalModelCheck();
   const localAnswer = await advisor.askLocalLlm("Hva avgjør risikoklasse?", [advisor.sources[0]], data.legalReferences);
   advisor.localLlmConfig.enabled = false;
+  advisor.localLlmConfig.onStatus = null;
   global.fetch = originalFetch;
 
   expectIncludes("Lokal LLM laster ned manglende modell", calls.map((call) => call.url).join(" "), "/api/pull");
   expectIncludes("Lokal LLM svar rendres", localAnswer, "Lokalt LLM-svar");
+  expectIncludes("Lokal LLM viser status", statusEvents.join(" "), "pulling");
 
   for (const check of checks) {
     console.log(`${check.ok ? "PASS" : "FAIL"} | ${check.label} | expected includes=${check.expected}`);

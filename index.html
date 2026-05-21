@@ -284,6 +284,7 @@
             <textarea id="advisorQuestion" rows="7" placeholder="Eksempel: Hva avgjør risikoklasse for et hotell?"></textarea>
 
             <div class="quick-prompts" aria-label="Eksempelspørsmål">
+              <button type="button" data-question="Hva er TEK17?">Hva er TEK17?</button>
               <button type="button" data-question="Hva avgjør risikoklasse?">Risikoklasse</button>
               <button type="button" data-question="Hvordan finner jeg brannklasse?">Brannklasse</button>
               <button type="button" data-question="Hva betyr tiltaksklasse?">Tiltaksklasse</button>
@@ -299,6 +300,10 @@
             <div class="panel-heading">
               <h2>Svar</h2>
               <p>Svaret skal være kort, faglig og kildebundet.</p>
+            </div>
+            <div class="assistant-status" id="advisorLlmStatus" data-status="idle">
+              <span></span>
+              <p>Klar. Lokal LLM brukes hvis Ollama er tilgjengelig.</p>
             </div>
             <div class="assistant-answer" id="advisorAnswer">
               Skriv et spørsmål for å se hvordan den kontrollerte TEK17-assistenten kan oppføre seg.

@@ -38,6 +38,7 @@ const tabIntroTexts = {
 };
 
 function init() {
+  bindAdvisorStatus();
   bindTabs();
   bindRiskCriteria();
   renderTemplates();
@@ -94,6 +95,14 @@ function init() {
       $("advisorQuestion").value = button.dataset.question;
       answerAdvisorQuestion();
     });
+  });
+}
+
+function bindAdvisorStatus() {
+  window.TEK17Advisor.localLlmConfig.onStatus = updateAdvisorStatus;
+  updateAdvisorStatus({
+    kind: "idle",
+    message: "Klar. Lokal LLM brukes hvis Ollama er tilgjengelig.",
   });
 }
 
@@ -614,8 +623,26 @@ function renderReasonList(reasons) {
 }
 
 async function answerAdvisorQuestion() {
+  $("advisorButton").disabled = true;
+  updateAdvisorStatus({
+    kind: "checking",
+    message: "Henter relevante kilder...",
+  });
   $("advisorAnswer").innerHTML = `<p class="field-note">Henter relevante kilder og sjekker lokal LLM. Første gang kan modellen lastes ned automatisk.</p>`;
-  $("advisorAnswer").innerHTML = await answerQuestion($("advisorQuestion").value, legalReferences);
+  try {
+    const answer = await answerQuestion($("advisorQuestion").value, legalReferences);
+    $("advisorAnswer").innerHTML = answer;
+  } finally {
+    $("advisorButton").disabled = false;
+  }
+}
+
+function updateAdvisorStatus(status) {
+  const statusEl = $("advisorLlmStatus");
+  if (!statusEl) return;
+
+  statusEl.dataset.status = status.kind;
+  statusEl.querySelector("p").textContent = status.message;
 }
 
 function setBooleanChoice(id, value) {

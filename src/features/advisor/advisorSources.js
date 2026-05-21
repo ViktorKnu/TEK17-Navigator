@@ -2,6 +2,27 @@ window.TEK17Advisor = window.TEK17Advisor || {};
 
 window.TEK17Advisor.sources = [
   {
+    id: "tek17",
+    title: "TEK17 og brannkapitlet",
+    referenceKey: "tek17",
+    topics: [
+      "tek17",
+      "byggteknisk forskrift",
+      "forskrift",
+      "dibk",
+      "kapittel 11",
+      "sikkerhet ved brann",
+      "brannkapittel",
+      "hva er tek17",
+    ],
+    shortAnswer:
+      "TEK17 er byggteknisk forskrift. I denne appen er assistenten avgrenset til brannfaglige temaer, særlig kapittel 11 Sikkerhet ved brann og relevante SAK10-bestemmelser om tiltaksklasse.",
+    practicalMeaning:
+      "Når du spør assistenten, forsøker den å svare ut fra godkjente TEK17/SAK10-kilder og vise hvilke hjemler svaret bygger på.",
+    assessmentNote:
+      "Assistenten skal ikke brukes som eneste grunnlag for prosjektering. Ved konkrete byggesaker må hjemmel og veiledning kontrolleres mot DIBK og faglig vurdering.",
+  },
+  {
     id: "risk",
     title: "Risikoklasse",
     referenceKey: "risk",

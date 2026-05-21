@@ -13,9 +13,14 @@ window.TEK17Advisor.retrieveSources = function retrieveSources(question, sources
 };
 
 function scoreSource(normalizedQuestion, source) {
-  return source.topics.reduce((score, topic) => {
+  const searchableTopics = [source.title, source.shortAnswer, ...(source.topics ?? [])];
+
+  return searchableTopics.reduce((score, topic) => {
     const normalizedTopic = normalize(topic);
-    return normalizedQuestion.includes(normalizedTopic) ? score + normalizedTopic.length : score;
+    if (!normalizedTopic) return score;
+    if (normalizedQuestion.includes(normalizedTopic)) return score + normalizedTopic.length;
+    if (normalizedTopic.includes(normalizedQuestion) && normalizedQuestion.length > 3) return score + normalizedQuestion.length;
+    return score;
   }, 0);
 }
 

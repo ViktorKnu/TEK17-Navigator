@@ -5,6 +5,7 @@ window.TEK17Advisor.localLlmConfig = {
   baseUrl: "http://localhost:11434",
   model: "llama3.1:8b",
   autoPull: true,
+  onStatus: null,
 };
 
 let localModelReadyPromise = null;
@@ -13,8 +14,10 @@ window.TEK17Advisor.askLocalLlm = async function askLocalLlm(question, matchedSo
   const config = window.TEK17Advisor.localLlmConfig;
   if (!config.enabled || !matchedSources.length) return null;
 
+  notifyLocalLlmStatus("checking", "Sjekker lokal LLM og modell...");
   await ensureLocalModel(config);
 
+  notifyLocalLlmStatus("generating", "Lokal LLM skriver svar...");
   const response = await fetch(`${config.baseUrl}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -46,6 +49,7 @@ window.TEK17Advisor.askLocalLlm = async function askLocalLlm(question, matchedSo
   const content = payload.message?.content?.trim();
   if (!content) return null;
 
+  notifyLocalLlmStatus("ready", `Lokal LLM klar: ${config.model}`);
   return renderLocalLlmAnswer(question, content, matchedSources, legalReferences);
 };
 
@@ -68,8 +72,14 @@ async function ensureLocalModel(config) {
 }
 
 async function ensureLocalModelOnce(config) {
-  if (await hasLocalModel(config)) return;
+  if (await hasLocalModel(config)) {
+    notifyLocalLlmStatus("ready", `Lokal LLM klar: ${config.model}`);
+    return;
+  }
+
+  notifyLocalLlmStatus("pulling", `Laster ned ${config.model}. Dette kan ta litt tid første gang.`);
   await pullLocalModel(config);
+  notifyLocalLlmStatus("ready", `Lokal LLM klar: ${config.model}`);
 }
 
 async function hasLocalModel(config) {
@@ -101,6 +111,13 @@ async function pullLocalModel(config) {
 function isSameModel(candidate, requested) {
   if (!candidate) return false;
   return candidate === requested || `${candidate}:latest` === requested || candidate === `${requested}:latest`;
+}
+
+function notifyLocalLlmStatus(kind, message) {
+  const handler = window.TEK17Advisor.localLlmConfig.onStatus;
+  if (typeof handler === "function") {
+    handler({ kind, message });
+  }
 }
 
 function buildLocalPrompt(question, matchedSources, legalReferences) {
@@ -143,7 +160,9 @@ function renderLocalLlmAnswer(question, answer, matchedSources, legalReferences)
         .filter(Boolean)
         .map((line) => `<p>${escapeHtml(line)}</p>`)
         .join("")}
-      ${references.map(referenceLink).join("")}
+      <div class="source-list">
+        ${references.map(referenceLink).join("")}
+      </div>
     </section>
     <p class="field-note">Svaret er generert lokalt fra hentede TEK17/SAK10-kilder. Kontroller hjemmel ved faglig bruk.</p>
   `;
@@ -160,7 +179,7 @@ function getReferences(source, legalReferences) {
 }
 
 function referenceLink(ref) {
-  return `<p class="source-line">Kilde: <a href="${ref.url}" target="_blank" rel="noreferrer">${ref.title}</a></p>`;
+  return `<p class="source-line"><span>Kilde</span><a href="${ref.url}" target="_blank" rel="noreferrer">${ref.title}</a></p>`;
 }
 
 function escapeHtml(value) {
