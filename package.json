@@ -5,6 +5,7 @@
   "description": "TEK17 Navigator med lokal klassifisering og kontrollert TEK17-assistent.",
   "main": "src/desktop/main.cjs",
   "scripts": {
+    "build:pages": "node tools/prepare-pages.cjs",
     "serve": "node tools/serve.cjs",
     "start": "node tools/serve.cjs",
     "desktop": "electron .",

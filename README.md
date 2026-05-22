@@ -12,6 +12,16 @@ Applikasjonen har tre faner:
 
 TEK17 Navigator skal kunne kjøres på to måter: i nettleser og som desktop-applikasjon.
 
+### Nettversjon
+
+Når endringer pushes til `main`, publiserer GitHub Actions automatisk en statisk nettversjon til GitHub Pages:
+
+```txt
+https://h678128.github.io/TEK17-Navigator/
+```
+
+Nettversjonen kan brukes til klassifisering og kildebaserte assistentsvar. Lokal LLM med Ollama krever fortsatt at brukeren kjører appen lokalt, fordi modellen ligger på brukerens egen maskin.
+
 ### 1. Nettleser
 
 Kjør lokal server:
