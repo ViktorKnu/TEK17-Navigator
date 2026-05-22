@@ -550,9 +550,35 @@ select {
   border: 1px solid #dfe6ef;
   border-radius: 8px;
   display: grid;
+  gap: 14px;
+  margin: 14px 0;
+  padding: 14px;
+}
+
+.llm-onboarding-header {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.llm-onboarding-header h3 {
+  margin: 6px 0 0;
+}
+
+.llm-onboarding-body {
+  display: grid;
   gap: 16px;
-  margin: 16px 0;
-  padding: 18px;
+}
+
+.llm-onboarding.collapsed {
+  background: #ffffff;
+  box-shadow: none;
+  margin: 10px 0;
+}
+
+.llm-onboarding.collapsed .llm-onboarding-body {
+  display: none;
 }
 
 .llm-onboarding h3 {

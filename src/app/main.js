@@ -91,6 +91,7 @@ function init() {
   $("lawButton").addEventListener("click", showLegalBasis);
   $("closeDialog").addEventListener("click", () => $("lawDialog").close());
   $("advisorButton").addEventListener("click", answerAdvisorQuestion);
+  $("toggleLlmOnboarding").addEventListener("click", toggleLlmOnboarding);
   $("checkOllamaButton").addEventListener("click", checkOllama);
   $("prepareLlmButton").addEventListener("click", prepareLlm);
 
@@ -114,7 +115,19 @@ function bindAdvisorStatus() {
 
 function bindLlmOnboarding() {
   $("llmOnboarding").dataset.mode = isLocalAssistantRuntime ? "local" : "pages";
+  setLlmOnboardingExpanded(false);
   renderLlmSetupState(isLocalAssistantRuntime ? "unknown" : "pages");
+}
+
+function toggleLlmOnboarding() {
+  const isExpanded = $("toggleLlmOnboarding").getAttribute("aria-expanded") === "true";
+  setLlmOnboardingExpanded(!isExpanded);
+}
+
+function setLlmOnboardingExpanded(isExpanded) {
+  $("llmOnboarding").classList.toggle("collapsed", !isExpanded);
+  $("toggleLlmOnboarding").setAttribute("aria-expanded", String(isExpanded));
+  $("toggleLlmOnboarding").textContent = isExpanded ? "Skjul oppsett" : "Vis oppsett";
 }
 
 function bindRiskCriteria() {
