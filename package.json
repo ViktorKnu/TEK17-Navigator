@@ -12,6 +12,6 @@
     "test": "node tests/scenario-tests.js && node tests/advisor-tests.js"
   },
   "devDependencies": {
-    "electron": "*"
+    "electron": "42.1.0"
   }
 }

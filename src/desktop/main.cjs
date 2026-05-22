@@ -16,10 +16,9 @@ const contentTypes = {
 function createStaticServer() {
   const server = http.createServer((request, response) => {
     const url = new URL(request.url, `http://${request.headers.host}`);
-    const requestedPath = url.pathname === "/" ? "/index.html" : decodeURIComponent(url.pathname);
-    const filePath = path.normalize(path.join(projectRoot, requestedPath));
+    const filePath = resolveStaticPath(url.pathname);
 
-    if (!filePath.startsWith(projectRoot)) {
+    if (!filePath) {
       response.writeHead(403);
       response.end("Forbidden");
       return;
@@ -47,6 +46,21 @@ function createStaticServer() {
   });
 }
 
+function resolveStaticPath(pathname) {
+  let requestedPath;
+  try {
+    requestedPath = pathname === "/" ? "index.html" : decodeURIComponent(pathname);
+  } catch {
+    return null;
+  }
+
+  const relativePath = requestedPath.replace(/^[/\\]+/, "");
+  const filePath = path.resolve(projectRoot, relativePath);
+  const relativeToRoot = path.relative(projectRoot, filePath);
+  if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)) return null;
+  return filePath;
+}
+
 async function createWindow() {
   const { url } = await createStaticServer();
   const window = new BrowserWindow({
@@ -58,6 +72,8 @@ async function createWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
+      webSecurity: true,
     },
   });
 

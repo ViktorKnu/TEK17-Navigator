@@ -1,7 +1,7 @@
 window.TEK17Advisor = window.TEK17Advisor || {};
 
 window.TEK17Advisor.localLlmConfig = {
-  enabled: true,
+  enabled: isLocalRuntime(),
   baseUrl: "http://localhost:11434",
   model: "llama3.1:8b",
   autoPull: true,
@@ -118,6 +118,19 @@ function notifyLocalLlmStatus(kind, message) {
   if (typeof handler === "function") {
     handler({ kind, message });
   }
+}
+
+function isLocalRuntime() {
+  const location = window.location;
+  if (!location) return true;
+
+  return (
+    location.protocol === "file:" ||
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1" ||
+    location.hostname === "::1" ||
+    location.hostname === "[::1]"
+  );
 }
 
 function buildLocalPrompt(question, matchedSources, legalReferences) {

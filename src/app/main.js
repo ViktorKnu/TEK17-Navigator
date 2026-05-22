@@ -100,9 +100,12 @@ function init() {
 
 function bindAdvisorStatus() {
   window.TEK17Advisor.localLlmConfig.onStatus = updateAdvisorStatus;
+  const localLlmEnabled = window.TEK17Advisor.localLlmConfig.enabled;
   updateAdvisorStatus({
     kind: "idle",
-    message: "Klar. Lokal LLM brukes hvis Ollama er tilgjengelig.",
+    message: localLlmEnabled
+      ? "Klar. Lokal LLM brukes hvis Ollama er tilgjengelig."
+      : "Klar. Nettversjonen bruker kildebasert svar uten lokal LLM.",
   });
 }
 

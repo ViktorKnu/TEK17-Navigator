@@ -15,10 +15,9 @@ const contentTypes = {
 
 const server = http.createServer((request, response) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
-  const requestedPath = url.pathname === "/" ? "/index.html" : decodeURIComponent(url.pathname);
-  const filePath = path.normalize(path.join(root, requestedPath));
+  const filePath = resolveStaticPath(url.pathname);
 
-  if (!filePath.startsWith(root)) {
+  if (!filePath) {
     response.writeHead(403);
     response.end("Forbidden");
     return;
@@ -37,6 +36,21 @@ const server = http.createServer((request, response) => {
     response.end(data);
   });
 });
+
+function resolveStaticPath(pathname) {
+  let requestedPath;
+  try {
+    requestedPath = pathname === "/" ? "index.html" : decodeURIComponent(pathname);
+  } catch {
+    return null;
+  }
+
+  const relativePath = requestedPath.replace(/^[/\\]+/, "");
+  const filePath = path.resolve(root, relativePath);
+  const relativeToRoot = path.relative(root, filePath);
+  if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)) return null;
+  return filePath;
+}
 
 server.listen(port, "127.0.0.1", () => {
   console.log(`TEK17 Navigator kjører på http://127.0.0.1:${port}`);
