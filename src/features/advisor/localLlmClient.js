@@ -1,7 +1,7 @@
 window.TEK17Advisor = window.TEK17Advisor || {};
 
 window.TEK17Advisor.localLlmConfig = {
-  enabled: isLocalRuntime(),
+  enabled: isLocalRuntime() || isLocalLlmEnabledByUser(),
   baseUrl: "http://localhost:11434",
   model: "llama3.1:8b",
   autoPull: true,
@@ -62,6 +62,7 @@ window.TEK17Advisor.prepareLocalLlm = async function prepareLocalLlm() {
   const config = window.TEK17Advisor.localLlmConfig;
   notifyLocalLlmStatus("checking", "Sjekker Ollama og lokal modell...");
   await ensureLocalModel(config);
+  enableLocalLlm();
   return checkLocalLlm();
 };
 
@@ -71,6 +72,7 @@ async function checkLocalLlm() {
   const hasModel = await hasLocalModel(config);
   const status = hasModel ? "ready" : "missing-model";
   notifyLocalLlmStatus(status, hasModel ? `Assistent klar med ${config.model}.` : `${config.model} er ikke lastet ned ennå.`);
+  if (hasModel) enableLocalLlm();
 
   return {
     ollamaAvailable: true,
@@ -141,6 +143,15 @@ function notifyLocalLlmStatus(kind, message) {
   }
 }
 
+function enableLocalLlm() {
+  window.TEK17Advisor.localLlmConfig.enabled = true;
+  try {
+    window.localStorage?.setItem("tek17LocalLlmEnabled", "true");
+  } catch (error) {
+    console.info("Kunne ikke lagre lokal LLM-status.", error);
+  }
+}
+
 function isLocalRuntime() {
   const location = window.location;
   if (!location) return true;
@@ -152,6 +163,14 @@ function isLocalRuntime() {
     location.hostname === "::1" ||
     location.hostname === "[::1]"
   );
+}
+
+function isLocalLlmEnabledByUser() {
+  try {
+    return window.localStorage?.getItem("tek17LocalLlmEnabled") === "true";
+  } catch (error) {
+    return false;
+  }
 }
 
 function buildLocalPrompt(question, matchedSources, legalReferences) {

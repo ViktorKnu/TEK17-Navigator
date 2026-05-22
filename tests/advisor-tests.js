@@ -85,12 +85,13 @@ function expectIncludes(label, actual, expected) {
   advisor.localLlmConfig.enabled = true;
   advisor.localLlmConfig.onStatus = (event) => statusEvents.push(event.kind);
   const checkResult = await advisor.checkLocalLlm();
-  advisor.localLlmConfig.enabled = false;
   advisor.localLlmConfig.onStatus = null;
   global.fetch = originalFetch;
 
   expectIncludes("Ollama-sjekk bruker tags", checkCalls.join(" "), "/api/tags");
   expectIncludes("Ollama-sjekk finner modell", String(checkResult.modelAvailable), "true");
+  expectIncludes("Ollama-sjekk aktiverer lokal LLM", String(advisor.localLlmConfig.enabled), "true");
+  advisor.localLlmConfig.enabled = false;
 
   for (const check of checks) {
     console.log(`${check.ok ? "PASS" : "FAIL"} | ${check.label} | expected includes=${check.expected}`);

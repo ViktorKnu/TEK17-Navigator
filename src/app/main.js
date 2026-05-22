@@ -674,7 +674,7 @@ async function checkOllama() {
       kind: "fallback",
       message: isLocalAssistantRuntime
         ? "Fant ikke Ollama. Start Ollama og prøv igjen."
-        : "Nettleseren fikk ikke kontakt med lokal Ollama. Bruk kildebasert svar eller kjør appen lokalt.",
+        : "Nettleseren fikk ikke kontakt med lokal Ollama. Tillat GitHub Pages i OLLAMA_ORIGINS, eller kjør appen lokalt.",
     });
     renderLlmSetupState(isLocalAssistantRuntime ? "ollama-missing" : "pages");
   } finally {
@@ -695,7 +695,7 @@ async function prepareLlm() {
       kind: "fallback",
       message: isLocalAssistantRuntime
         ? "Klarte ikke å klargjøre lokal LLM. Kontroller at Ollama kjører."
-        : "Nettversjonen kan ikke starte Ollama. Installer/start Ollama lokalt først.",
+        : "Nettversjonen kan ikke starte Ollama. Tillat GitHub Pages i OLLAMA_ORIGINS, eller kjør appen lokalt.",
     });
     renderLlmSetupState(isLocalAssistantRuntime ? "ollama-missing" : "pages");
   } finally {
@@ -712,11 +712,11 @@ function renderLlmSetupState(status) {
 
   const messages = {
     pages:
-      "Du er på nettversjonen. Klassifisering og kildebaserte svar fungerer med en gang. For lokal LLM må Ollama installeres og appen kjøres lokalt på PC-en.",
+      "Du er på nettversjonen. Klassifisering og kildebaserte svar fungerer med en gang. For lokal LLM må Ollama kjøre og tillate denne Pages-adressen via OLLAMA_ORIGINS.",
     unknown:
       "Sjekk om Ollama kjører. Hvis den gjør det, kan appen klargjøre modellen automatisk.",
     checking: "Sjekker om Ollama kjører og om modellen finnes lokalt.",
-    "ollama-missing": "Ollama svarer ikke ennå. Installer Ollama hvis den mangler, eller start Ollama og prøv igjen.",
+    "ollama-missing": "Ollama svarer ikke ennå. Installer/start Ollama. På Pages må Ollama også tillate https://h678128.github.io i OLLAMA_ORIGINS.",
     "missing-model": "Ollama kjører, men modellen mangler. Trykk Klargjør assistent for å laste den ned.",
     pulling: "Modellen lastes ned eller klargjøres. Dette kan ta litt tid første gang.",
     ready: "Lokal assistent er klar. Spørsmål kan nå besvares med lokal LLM og kildegrunnlag.",
@@ -728,13 +728,13 @@ function renderLlmSetupState(status) {
 
 function updateSetupSteps(status) {
   const stepStates = {
-    pages: { install: "todo", run: "todo", model: "todo" },
-    unknown: { install: "todo", run: "todo", model: "todo" },
-    checking: { install: "current", run: "current", model: "todo" },
-    "ollama-missing": { install: "todo", run: "current", model: "todo" },
-    "missing-model": { install: "done", run: "done", model: "current" },
-    pulling: { install: "done", run: "done", model: "current" },
-    ready: { install: "done", run: "done", model: "done" },
+    pages: { install: "todo", run: "todo", origin: "todo", model: "todo" },
+    unknown: { install: "todo", run: "todo", origin: "todo", model: "todo" },
+    checking: { install: "current", run: "current", origin: "current", model: "todo" },
+    "ollama-missing": { install: "todo", run: "current", origin: "current", model: "todo" },
+    "missing-model": { install: "done", run: "done", origin: "done", model: "current" },
+    pulling: { install: "done", run: "done", origin: "done", model: "current" },
+    ready: { install: "done", run: "done", origin: "done", model: "done" },
   };
 
   const states = stepStates[status] ?? stepStates.unknown;
