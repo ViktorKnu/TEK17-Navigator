@@ -291,16 +291,14 @@
               <button type="button" data-question="Hva gjør jeg ved blandet bruk?">Blandet bruk</button>
             </div>
 
-            <section class="llm-onboarding collapsed" id="llmOnboarding">
-              <div class="llm-onboarding-header">
-                <div>
+            <details class="llm-onboarding" id="llmOnboarding">
+              <summary class="llm-onboarding-summary">
+                <span class="llm-chevron" aria-hidden="true"></span>
+                <span>
                   <span class="tag">Lokal assistent</span>
-                  <h3>Kom i gang med Ollama</h3>
-                </div>
-                <button type="button" class="ghost-action" id="toggleLlmOnboarding" aria-expanded="false">
-                  Vis oppsett
-                </button>
-              </div>
+                  <strong>Kom i gang med Ollama</strong>
+                </span>
+              </summary>
               <div class="llm-onboarding-body" id="llmOnboardingBody">
                 <div>
                   <p id="llmOnboardingText">
@@ -318,7 +316,7 @@
                   <button type="button" class="primary-action" id="prepareLlmButton">Klargjør assistent</button>
                 </div>
               </div>
-            </section>
+            </details>
 
             <button type="button" class="primary-action" id="advisorButton">
               Spør TEK17-assistenten

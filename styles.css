@@ -549,36 +549,52 @@ select {
   background: #fbfaf7;
   border: 1px solid #dfe6ef;
   border-radius: 8px;
-  display: grid;
-  gap: 14px;
   margin: 14px 0;
+  padding: 0;
+}
+
+.llm-onboarding-summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  list-style: none;
   padding: 14px;
 }
 
-.llm-onboarding-header {
-  align-items: center;
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
+.llm-onboarding-summary::-webkit-details-marker {
+  display: none;
 }
 
-.llm-onboarding-header h3 {
-  margin: 6px 0 0;
+.llm-onboarding-summary strong {
+  color: var(--ink);
+  display: block;
+  font-size: 1rem;
+  font-weight: 650;
+  margin-top: 6px;
+}
+
+.llm-chevron {
+  border-bottom: 2px solid #53606d;
+  border-right: 2px solid #53606d;
+  display: inline-block;
+  flex: 0 0 auto;
+  height: 9px;
+  margin-left: 2px;
+  transform: rotate(-45deg);
+  transition: transform 150ms ease;
+  width: 9px;
+}
+
+.llm-onboarding[open] .llm-chevron {
+  transform: rotate(45deg);
 }
 
 .llm-onboarding-body {
+  border-top: 1px solid #dfe6ef;
   display: grid;
   gap: 16px;
-}
-
-.llm-onboarding.collapsed {
-  background: #ffffff;
-  box-shadow: none;
-  margin: 10px 0;
-}
-
-.llm-onboarding.collapsed .llm-onboarding-body {
-  display: none;
+  padding: 0 14px 14px;
 }
 
 .llm-onboarding h3 {
