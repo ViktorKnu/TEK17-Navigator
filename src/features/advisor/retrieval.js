@@ -14,14 +14,26 @@ window.TEK17Advisor.retrieveSources = function retrieveSources(question, sources
 
 function scoreSource(normalizedQuestion, source) {
   const searchableTopics = [source.title, source.shortAnswer, ...(source.topics ?? [])];
+  const questionTokens = tokenize(normalizedQuestion);
 
   return searchableTopics.reduce((score, topic) => {
     const normalizedTopic = normalize(topic);
     if (!normalizedTopic) return score;
+    if (isShortSingleTerm(normalizedTopic)) {
+      return questionTokens.includes(normalizedTopic) ? score + normalizedTopic.length : score;
+    }
     if (normalizedQuestion.includes(normalizedTopic)) return score + normalizedTopic.length;
     if (normalizedTopic.includes(normalizedQuestion) && normalizedQuestion.length > 3) return score + normalizedQuestion.length;
     return score;
   }, 0);
+}
+
+function isShortSingleTerm(value) {
+  return value.length <= 4 && !value.includes(" ");
+}
+
+function tokenize(value) {
+  return value.split(/[^a-z0-9Ã¦Ã¸Ã¥]+/i).filter(Boolean);
 }
 
 function normalize(value) {

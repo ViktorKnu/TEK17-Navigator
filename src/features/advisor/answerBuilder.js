@@ -10,6 +10,8 @@ window.TEK17Advisor.buildAnswer = function buildAnswer(question, matchedSources,
       <section>
         <h3>Utenfor kildegrunnlaget</h3>
         <p><strong>Kort svar:</strong> Dette spørsmålet treffer ikke de TEK17/SAK10-kildene som er koblet til assistenten ennå.</p>
+        <p><strong>VTEK-sjekk:</strong> Appen har ikke nok lokalt kildegrunnlag til å si om situasjonen er preakseptert.</p>
+        <p><strong>Neste steg:</strong> Slå opp aktuell bestemmelse og veiledning hos DIBK, og dokumenter eventuelt fravik/analyse hvis løsningen ikke står som preakseptert ytelse.</p>
         <p><strong>Hva du kan spørre om:</strong> Prøv risikoklasse, brannklasse, tiltaksklasse, blandet bruk, unntak, BKL 4 eller hva TEK17 er.</p>
       </section>
       ${boundaryNote()}
@@ -29,12 +31,25 @@ function renderSourceAnswer(source, legalReferences) {
     <section>
       <h3>${source.title}</h3>
       <p><strong>Kort svar:</strong> ${source.shortAnswer}</p>
+      ${renderProblemAssessment(source)}
       <p><strong>I praksis:</strong> ${source.practicalMeaning}</p>
       <p><strong>Vurder nærmere:</strong> ${source.assessmentNote}</p>
       <div class="source-list">
         ${refs.map(referenceLink).join("")}
       </div>
     </section>
+  `;
+}
+
+function renderProblemAssessment(source) {
+  if (!source.vtekSearch && !source.preacceptedPath && !source.outsidePreaccepted) return "";
+
+  return `
+    <div class="problem-assessment">
+      <p><strong>Sjekk i VTEK/veiledning:</strong> ${source.vtekSearch}</p>
+      <p><strong>Preakseptert spor:</strong> ${source.preacceptedPath}</p>
+      <p><strong>Hvis det ikke står der:</strong> ${source.outsidePreaccepted}</p>
+    </div>
   `;
 }
 
@@ -48,7 +63,7 @@ function referenceLink(ref) {
 }
 
 function boundaryNote() {
-  return `<p class="field-note">Assistenten er avgrenset til godkjente TEK17/SAK10-kilder, inkludert relevante DIBK-veiledninger. Svarene skal vise referanser og markere usikkerhet når grunnlaget ikke er entydig.</p>`;
+  return `<p class="field-note">Assistenten søker bare i kildegrunnlaget som er lagt inn i appen. Hvis en problemstilling ikke finnes der, skal den markeres som ikke avklart i VTEK-grunnlaget, ikke fylles ut med antakelser.</p>`;
 }
 
 function escapeHtml(value) {

@@ -42,6 +42,16 @@ function expectIncludes(label, actual, expected) {
     "Unntak og BKL 4",
   );
   expectIncludes(
+    "Problemstilling viser preakseptert spor",
+    await advisor.answerQuestion("Problemstilling: Kan et hotell i to etasjer vurderes etter preakseptert brannklasse?", data.legalReferences),
+    "Preakseptert spor",
+  );
+  expectIncludes(
+    "Uten treff sier at VTEK-grunnlaget ikke avklarer",
+    await advisor.answerQuestion("Kan jeg bruke en ukjent spesialløsning for kaffemaskinrom?", data.legalReferences),
+    "ikke nok lokalt kildegrunnlag",
+  );
+  expectIncludes(
     "Utenfor kildegrunnlag avgrenses",
     await advisor.answerQuestion("Hva er beste kaffemaskin?", data.legalReferences),
     "Utenfor kildegrunnlaget",
@@ -81,6 +91,7 @@ function expectIncludes(label, actual, expected) {
   expectIncludes("Lokal LLM bruker kort svargrense", JSON.stringify(chatBody.options), "num_predict");
   expectIncludes("Lokal LLM holdes varm", chatBody.keep_alive, "10m");
   expectIncludes("Lokal LLM får veiledningskilde", chatBody.messages.map((message) => message.content).join(" "), "Veiledning");
+  expectIncludes("Lokal LLM får problemstillingsinstruks", chatBody.messages.map((message) => message.content).join(" "), "Preakseptert spor");
 
   const checkCalls = [];
   global.fetch = async (url) => {

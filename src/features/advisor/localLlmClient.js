@@ -37,7 +37,7 @@ window.TEK17Advisor.askLocalLlm = async function askLocalLlm(question, matchedSo
         {
           role: "system",
           content:
-            "Du er TEK17 Navigator sin lokale fagassistent. Svar kun på norsk. Bruk bare forskrift og veiledning som ligger i kildegrunnlaget. Ikke finn på paragrafer, krav eller tall. Hvis kildegrunnlaget ikke er nok, si at spørsmålet må vurderes nærmere mot TEK17/SAK10.",
+            "Du er TEK17 Navigator sin lokale fagassistent. Svar kun på norsk. Bruk bare forskrift og veiledning som ligger i kildegrunnlaget. For problemstillinger skal du først lete etter om situasjonen er dekket av VTEK/veiledning og preaksepterte ytelser. Hvis den er dekket, si at den ser ut til å følge preakseptert spor og vis til kilden. Hvis den ikke er dekket, si tydelig at den ikke står i kildegrunnlaget og må vurderes som fravik, analyse eller særskilt dokumentasjon. Ikke finn på paragrafer, krav, standarder eller tall.",
         },
         {
           role: "user",
@@ -189,6 +189,9 @@ function buildLocalPrompt(question, matchedSources, legalReferences) {
         `Kort svar: ${source.shortAnswer}`,
         `Praktisk betydning: ${source.practicalMeaning}`,
         `Vurder nærmere: ${source.assessmentNote}`,
+        `Sjekk i VTEK/veiledning: ${source.vtekSearch ?? "Ikke angitt."}`,
+        `Preakseptert spor: ${source.preacceptedPath ?? "Ikke angitt."}`,
+        `Hvis det ikke står der: ${source.outsidePreaccepted ?? "Ikke angitt."}`,
         "Kilder:",
         refs.map((ref) => `- ${ref.tag}: ${ref.title}. ${ref.summary}`).join("\n"),
       ].join("\n");
@@ -201,11 +204,12 @@ function buildLocalPrompt(question, matchedSources, legalReferences) {
     "Kildegrunnlag:",
     sourceText,
     "",
-    "Svar med maks 8 korte linjer:",
-    "1. Kort svar",
-    "2. Relevant hjemmel",
-    "3. Praktisk betydning",
-    "4. Når må fagperson vurdere nærmere",
+    "Svar med maks 10 korte linjer:",
+    "1. Kort konklusjon",
+    "2. Treffer problemstillingen VTEK/veiledningen?",
+    "3. Er dette preakseptert, eller står det ikke i kildegrunnlaget?",
+    "4. Relevant hjemmel/kilde",
+    "5. Eventuelt avvik, analysebehov eller mulig videre løsning",
   ].join("\n");
 }
 
