@@ -3,8 +3,10 @@ window.TEK17Rules = window.TEK17Rules || {};
 window.TEK17Rules.classifyRisk = function classifyRisk(input, usage, legalReferences) {
   const reasons = [];
   const derivedValue = deriveRiskClassFromCriteria(input);
-  const mismatches = usage?.criteria ? getCriteriaMismatches(input, usage.criteria) : [];
-  const warnings = getRiskInputWarnings(input);
+  const rawMismatches = usage?.criteria ? getCriteriaMismatches(input, usage.criteria) : [];
+  const isMaxRiskClass = usage?.riskClass === 6 && !input.doesNotFitStandardType;
+  const mismatches = isMaxRiskClass ? rawMismatches.filter((label) => label !== "brannfare") : rawMismatches;
+  const warnings = getRiskInputWarnings(input, { ignoreFireHazardAtMaxRiskClass: isMaxRiskClass });
   const manualRiskClass = Number(input.manualRiskClassOverride) || null;
   const standardMatch = Boolean(usage?.riskClass && !input.doesNotFitStandardType && mismatches.length === 0);
   let value = standardMatch ? usage.riskClass : derivedValue;
@@ -19,8 +21,13 @@ window.TEK17Rules.classifyRisk = function classifyRisk(input, usage, legalRefere
     confidence = "requires-assessment";
     status = derivedValue ? "criteria-derived" : "manual-assessment";
     if (derivedValue) {
-      reasons.push(`Flervalget peker mot risikoklasse ${derivedValue} etter kriteriene i TEK17 § 11-2.`);
-      value = derivedValue;
+      if (usage?.riskClass && derivedValue < usage.riskClass) {
+        value = usage.riskClass;
+        reasons.push(`Flervalget peker mot lavere risikoklasse ${derivedValue}, men valgt byggtype beholdes som RKL ${usage.riskClass}. Kriterier skal ikke senke en preakseptert virksomhetstype.`);
+      } else {
+        reasons.push(`Flervalget peker mot risikoklasse ${derivedValue} etter kriteriene i TEK17 § 11-2.`);
+        value = derivedValue;
+      }
     } else if (usage?.riskClass) {
       reasons.push(`${usage.name} har normalt risikoklasse ${usage.riskClass}, men de endrede kriteriene treffer ikke rent i tabellen.`);
       value = mismatches.length || input.doesNotFitStandardType ? null : usage.riskClass;
@@ -34,7 +41,7 @@ window.TEK17Rules.classifyRisk = function classifyRisk(input, usage, legalRefere
     reasons.push(`Valgene avviker fra malen for ${usage.name}: ${mismatches.join(", ")}.`);
   }
 
-  if (usage?.riskClass && derivedValue && derivedValue !== usage.riskClass) {
+  if (usage?.riskClass && derivedValue && derivedValue > usage.riskClass) {
     confidence = "requires-assessment";
     reasons.push(`Byggtypen foreslår RKL ${usage.riskClass}, mens kriteriene peker mot RKL ${derivedValue}. Kriteriene bør dokumenteres.`);
   }
@@ -73,7 +80,7 @@ window.TEK17Rules.classifyRisk = function classifyRisk(input, usage, legalRefere
     derivedRiskClass: derivedValue,
     manualRiskClass,
     criteriaMismatches: mismatches,
-    hasDeviation: Boolean(mismatches.length || input.doesNotFitStandardType || (usage?.riskClass && derivedValue && derivedValue !== usage.riskClass)),
+    hasDeviation: Boolean(mismatches.length || input.doesNotFitStandardType || (usage?.riskClass && derivedValue && derivedValue > usage.riskClass)),
     warnings,
     reasons,
     legalBasis: [legalReferences.risk],
@@ -117,7 +124,7 @@ function getCriteriaMismatches(input, preset) {
     .map((key) => labels[key]);
 }
 
-function getRiskInputWarnings(input) {
+function getRiskInputWarnings(input, options = {}) {
   const warnings = [];
 
   if (input.sporadicOccupancyOnly && input.overnightStay) {
@@ -128,7 +135,7 @@ function getRiskInputWarnings(input) {
     warnings.push("Brukerne kan kjenne rømningsforholdene, men manglende evne til selvredning trekker vurderingen opp.");
   }
 
-  if (!input.lowFireHazard && (!input.usersKnowEscapeRoutes || input.overnightStay)) {
+  if (!options.ignoreFireHazardAtMaxRiskClass && !input.lowFireHazard && (!input.usersKnowEscapeRoutes || input.overnightStay)) {
     warnings.push("Forhøyet brannfare sammen med ukjente rømningsforhold eller overnatting passer dårlig i standardtabellen.");
   }
 
