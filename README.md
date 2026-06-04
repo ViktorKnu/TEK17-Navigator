@@ -110,6 +110,20 @@ Appen bruker Ollama-endepunktene:
 
 Hvis Ollama ikke svarer, faller assistenten tilbake til kildebaserte svar uten LLM.
 
+## Modellvalg og Responstid
+
+Standardmodellen er foreløpig `llama3.1:8b`. Den gir brukbare lokale svar, men kan være treg på maskiner med begrenset CPU/GPU-ressurser.
+
+Videre arbeid:
+
+- teste om en nyere eller mindre modell gir raskere responstid
+- sammenligne svarkvalitet mot `llama3.1:8b`
+- vurdere egen "rask modell" for korte spørsmål
+- vurdere egen "grundig modell" for tyngre problemstillinger
+- måle første svar etter oppstart og svar nummer to når modellen allerede er varm
+
+Målet er å finne en modell som gir god nok faglig kvalitet uten at brukeren må vente unødvendig lenge.
+
 ## Faglig Avgrensning
 
 Assistenten skal bare svare fra kilder som er lagt inn i appen. RAG-grunnlaget omfatter både forskrift og veiledning der det er relevant, blant annet:
