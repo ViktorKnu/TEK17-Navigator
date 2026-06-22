@@ -15,7 +15,7 @@ Målet er ikke å erstatte faglig vurdering, men å gjøre det raskere å finne 
 Den publiserte webappen ligger her:
 
 ```txt
-https://h678128.github.io/TEK17-Navigator/
+https://viktorknu.github.io/TEK17-Navigator/
 ```
 
 GitHub Pages oppdateres fra `main` via prosjektets Pages-workflow. Nettversjonen kan brukes til klassifisering og kildebaserte assistentsvar uten installasjon.
@@ -23,7 +23,7 @@ GitHub Pages oppdateres fra `main` via prosjektets Pages-workflow. Nettversjonen
 Lokal LLM i nettversjonen krever at Ollama kjører på brukerens egen maskin. Ved bruk fra GitHub Pages kan Ollama måtte startes med:
 
 ```powershell
-$env:OLLAMA_ORIGINS="https://h678128.github.io"
+$env:OLLAMA_ORIGINS="https://viktorknu.github.io"
 ollama serve
 ```
 
@@ -34,7 +34,7 @@ Desktopappen bygges med Electron og bruker samme fagdata og UI som nettversjonen
 Siste desktopversjon kan lastes ned fra:
 
 ```txt
-https://github.com/h678128/TEK17-Navigator/releases/latest
+https://github.com/ViktorKnu/TEK17-Navigator/releases/latest
 ```
 
 Release-siden inneholder normalt:

@@ -801,6 +801,7 @@ function renderLlmSetupState(status) {
   if (!onboarding || !text) return;
 
   onboarding.dataset.status = status;
+  const currentOrigin = window.location?.origin ?? "https://viktorknu.github.io";
 
   const messages = {
     pages:
@@ -808,7 +809,7 @@ function renderLlmSetupState(status) {
     unknown:
       "Sjekk om Ollama kjører. Hvis den gjør det, kan appen klargjøre modellen automatisk.",
     checking: "Sjekker om Ollama kjører og om modellen finnes lokalt.",
-    "ollama-missing": "Ollama svarer ikke ennå. Installer/start Ollama. På Pages må Ollama også tillate https://h678128.github.io i OLLAMA_ORIGINS.",
+    "ollama-missing": `Ollama svarer ikke ennå. Installer/start Ollama. På Pages må Ollama også tillate ${currentOrigin} i OLLAMA_ORIGINS.`,
     "missing-model": "Ollama kjører, men modellen mangler. Trykk Klargjør assistent for å laste den ned.",
     pulling: "Modellen lastes ned eller klargjøres. Dette kan ta litt tid første gang.",
     ready: "Lokal assistent er klar. Spørsmål kan nå besvares med lokal LLM og kildegrunnlag.",
