@@ -82,7 +82,7 @@ window.TEK17Advisor.localLlmConfig = {
     top_k: 20,
     top_p: 0.8,
     num_ctx: 2048,
-    num_predict: 320,
+    num_predict: 220,
   },
   onStatus: null,
 };
@@ -106,7 +106,7 @@ window.TEK17Advisor.askLocalLlm = async function askLocalLlm(question, matchedSo
       {
         role: "system",
         content:
-          "Du er TEK17 Navigator sin lokale fagassistent. Svar kun på norsk. Bruk bare forskrift og veiledning som ligger i kildegrunnlaget. For problemstillinger skal du først lete etter om situasjonen er dekket av VTEK/veiledning og preaksepterte ytelser. Hvis den er dekket, si at den ser ut til å følge preakseptert spor og vis til kilden. Hvis den ikke er dekket, si tydelig at den ikke står i kildegrunnlaget og må vurderes som fravik, analyse eller særskilt dokumentasjon. Ikke finn på paragrafer, krav, standarder eller tall.",
+          "Du er TEK17 Navigator sin lokale fagassistent. Svar kun på norsk. Bruk bare opplysninger som står uttrykkelig i forskriften og veiledningen i kildegrunnlaget. For problemstillinger skal du først lete etter om situasjonen er dekket av VTEK/veiledning og preaksepterte ytelser. Hvis den er dekket, si at den ser ut til å følge preakseptert spor og vis til kilden. Hvis den ikke er dekket, si tydelig at den ikke står i kildegrunnlaget og må vurderes som fravik, analyse eller særskilt dokumentasjon. Ikke legg til egne eksempler, kontrollpunkter, paragrafer, krav, standarder eller tall.",
       },
       {
         role: "user",
@@ -325,7 +325,7 @@ function buildLocalPrompt(question, matchedSources, legalReferences, context) {
     "Kildegrunnlag:",
     sourceText,
     "",
-    "Svar med maks 10 korte linjer:",
+    "Svar med maks 8 korte linjer:",
     "1. Kort konklusjon",
     "2. Treffer problemstillingen VTEK/veiledningen?",
     "3. Er dette preakseptert, eller står det ikke i kildegrunnlaget?",

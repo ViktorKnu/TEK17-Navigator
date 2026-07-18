@@ -101,10 +101,12 @@ function expectIncludes(label, actual, expected) {
   expectIncludes("Lokal LLM viser status", statusEvents.join(" "), "pulling");
   const chatBody = JSON.parse(calls.find((call) => call.url.endsWith("/api/chat")).options.body);
   expectIncludes("Lokal LLM bruker kort svargrense", JSON.stringify(chatBody.options), "num_predict");
+  expectIncludes("Lokal LLM begrenser svaret til 220 tokens", String(chatBody.options.num_predict), "220");
   expectIncludes("Lokal LLM holdes varm", chatBody.keep_alive, "10m");
   expectIncludes("Lokal LLM får veiledningskilde", chatBody.messages.map((message) => message.content).join(" "), "Veiledning");
   expectIncludes("Lokal LLM får problemstillingsinstruks", chatBody.messages.map((message) => message.content).join(" "), "Preakseptert spor");
   expectIncludes("Lokal LLM får konkrete veiledningspunkter", chatBody.messages.map((message) => message.content).join(" "), "Konkrete punkter");
+  expectIncludes("Lokal LLM forbys å legge til egne eksempler", chatBody.messages.map((message) => message.content).join(" "), "Ikke legg til egne eksempler");
   expectIncludes("Standardmodell er rask Qwen instruct", chatBody.model, "qwen3:4b-instruct");
   expectIncludes("Modellvalg beskriver fordeler", advisor.localLlmModels[0].advantages.join(" "), "bokmål");
   expectIncludes("Modellvalg beskriver begrensninger", advisor.localLlmModels[0].limitations.join(" "), "Mindre kapasitet");

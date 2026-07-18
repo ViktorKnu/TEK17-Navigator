@@ -132,6 +132,10 @@ Modellkilder: [Qwen 3](https://qwenlm.github.io/blog/qwen3/), [Gemma 3](https://
 
 Faktisk hastighet avhenger særlig av RAM, CPU og GPU. Første svar etter oppstart tar normalt lengre tid enn neste svar fordi modellen først må lastes i minnet. Qwen 8B kjøres uten tenkemodus i appen for å redusere ventetiden.
 
+En lokal sammenligning på en PC med Intel Core i7-1360P, 16 GB RAM og integrert grafikk viste at den optimaliserte Qwen 3 4B-profilen svarte på omtrent 51 sekunder ved kald start og 23 sekunder når modellen var varm. Llama 3.1 8B brukte omtrent 78 og 38 sekunder på samme problemstilling. Resultatene vil variere mellom maskiner, men målingen støtter Qwen 3 4B som raskt standardvalg.
+
+For å holde responstiden nede og redusere frie tillegg er lokale svar begrenset til 220 genererte tokens og maksimalt åtte korte linjer. Modellen instrueres til ikke å legge til eksempler eller kontrollpunkter som ikke står uttrykkelig i kildegrunnlaget.
+
 ## Faglig Avgrensning
 
 Assistenten skal bare svare fra kilder som er lagt inn i appen. RAG-grunnlaget omfatter både forskrift og konkrete punkter fra veiledningen der det er relevant, blant annet:
