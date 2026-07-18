@@ -115,14 +115,16 @@ Hvis Ollama ikke svarer, faller assistenten tilbake til kildebaserte svar uten L
 
 Appen tilbyr bare modeller som er laget for norsk eller har dokumentert flerspråklig støtte. Standardvalget er `qwen3:4b-instruct` fordi det gir en bedre balanse mellom norsk språk, kvalitet og responstid enn den tidligere standardmodellen `llama3.1:8b`.
 
-| Modell | Profil | Nedlasting | Anbefalt maskin |
-| --- | --- | ---: | --- |
-| `qwen3:4b-instruct` | Rask, anbefalt | 2,5 GB | 8 GB RAM eller mer |
-| `gemma3:4b` | Balansert | 3,3 GB | 8 GB RAM eller mer |
-| `NbAiLab/borealis-instruct-preview:4b` | Norsk forhåndsversjon | 3,3 GB | 8 GB RAM eller mer |
-| `qwen3:8b` | Grundig | 5,2 GB | 16 GB RAM eller dedikert GPU |
-| `gemma3:12b` | Kraftig PC | 8,1 GB | 24 GB RAM eller god dedikert GPU |
-| `NbAiLab/borealis-instruct-preview:12b` | Norsk, kraftig PC | 8,7 GB | 24 GB RAM eller god dedikert GPU |
+| Modell | Passer best til | Fordel | Vær obs på |
+| --- | --- | --- | --- |
+| `qwen3:4b-instruct` | Raske svar på vanlige PC-er | Bokmål, nynorsk og lav ressursbruk | Mindre kapasitet ved sammensatte saker |
+| `gemma3:4b` | Balansert allroundbruk | Instruksjoner og oppsummering | Litt tregere og ikke norsktilpasset |
+| `NbAiLab/borealis-instruct-preview:4b` | Utprøving av norsk språk | Norsktilpasset og moderat størrelse | Forhåndsversjon med mindre testing |
+| `qwen3:8b` | Grundigere svar på sterkere PC-er | Mer kapasitet og norskstøtte | Krever mer minne og tid |
+| `gemma3:12b` | Komplekse spørsmål og lange kilder | Sterk generell svarkvalitet | Høyt minnebehov og ikke norsktilpasset |
+| `NbAiLab/borealis-instruct-preview:12b` | Krevende spørsmål med norsk språkfokus | Større norsktilpasset modell | Forhåndsversjon og svært ressurskrevende |
+
+Appen viser i tillegg nedlastingsstørrelse, anbefalt maskinvare og flere konkrete fordeler og begrensninger når en modell velges.
 
 Qwen 3 støtter bokmål og nynorsk. Gemma 3 4B/12B har støtte for over 140 språk. Borealis er norsktilpasset av Nasjonalbibliotekets AI-lab, men er foreløpig publisert som en forhåndsversjon.
 

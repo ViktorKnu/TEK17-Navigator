@@ -106,6 +106,8 @@ function expectIncludes(label, actual, expected) {
   expectIncludes("Lokal LLM får problemstillingsinstruks", chatBody.messages.map((message) => message.content).join(" "), "Preakseptert spor");
   expectIncludes("Lokal LLM får konkrete veiledningspunkter", chatBody.messages.map((message) => message.content).join(" "), "Konkrete punkter");
   expectIncludes("Standardmodell er rask Qwen instruct", chatBody.model, "qwen3:4b-instruct");
+  expectIncludes("Modellvalg beskriver fordeler", advisor.localLlmModels[0].advantages.join(" "), "bokmål");
+  expectIncludes("Modellvalg beskriver begrensninger", advisor.localLlmModels[0].limitations.join(" "), "Mindre kapasitet");
 
   advisor.setLocalLlmModel("qwen3:8b");
   expectIncludes("Modellvalg oppdaterer konfigurasjonen", advisor.localLlmConfig.model, "qwen3:8b");

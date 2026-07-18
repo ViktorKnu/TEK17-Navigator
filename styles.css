@@ -740,6 +740,45 @@ select {
   margin: 0;
 }
 
+.llm-model-tradeoffs {
+  border-top: 1px solid #e2e7eb;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  margin: 2px 0 0;
+  padding-top: 10px;
+}
+
+.llm-model-tradeoffs div {
+  display: block;
+}
+
+.llm-model-tradeoffs dt {
+  color: #364555;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.llm-model-tradeoffs dd {
+  margin: 5px 0 0;
+}
+
+.llm-model-tradeoffs ul {
+  color: #53606d;
+  display: grid;
+  font-size: 0.82rem;
+  gap: 4px;
+  line-height: 1.4;
+  margin: 0;
+  padding-left: 18px;
+}
+
+@media (max-width: 640px) {
+  .llm-model-tradeoffs {
+    grid-template-columns: 1fr;
+  }
+}
+
 .llm-actions .ghost-action,
 .llm-actions .primary-action {
   align-items: center;

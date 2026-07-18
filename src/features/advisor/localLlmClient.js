@@ -11,6 +11,8 @@ window.TEK17Advisor.localLlmModels = [
     size: "2,5 GB",
     hardware: "8 GB RAM eller mer",
     description: "Anbefalt standardvalg. God norskstøtte og korte svar uten ekstra tenkemodus.",
+    advantages: ["Raskest av de anbefalte modellene", "Støtter både bokmål og nynorsk", "God til korte, kildebundne svar"],
+    limitations: ["Mindre kapasitet enn 8B- og 12B-modellene ved sammensatte problemstillinger"],
   },
   {
     id: "gemma3:4b",
@@ -19,6 +21,8 @@ window.TEK17Advisor.localLlmModels = [
     size: "3,3 GB",
     hardware: "8 GB RAM eller mer",
     description: "Flerspråklig alternativ med litt høyere ressursbruk enn Qwen 4B.",
+    advantages: ["God allroundmodell", "Sterk på instruksjoner og oppsummering", "Passer vanlige bærbare og stasjonære PC-er"],
+    limitations: ["Litt større og ofte tregere enn Qwen 4B", "Ikke spesielt trent for norsk fagterminologi"],
   },
   {
     id: "NbAiLab/borealis-instruct-preview:4b",
@@ -27,6 +31,8 @@ window.TEK17Advisor.localLlmModels = [
     size: "3,3 GB",
     hardware: "8 GB RAM eller mer",
     description: "Norsktilpasset modell fra Nasjonalbibliotekets AI-lab. Fortsatt en forhåndsversjon.",
+    advantages: ["Norsktilpasset språkmodell", "Interessant for norsk ordvalg og fagterminologi", "Moderat størrelse"],
+    limitations: ["Forhåndsversjon med mindre modenhet og testing", "Kan variere mer i presisjon enn etablerte modeller"],
   },
   {
     id: "qwen3:8b",
@@ -36,6 +42,8 @@ window.TEK17Advisor.localLlmModels = [
     hardware: "16 GB RAM eller dedikert GPU",
     description: "Bedre kapasitet for sammensatte problemstillinger. Tenkemodus er slått av for raskere svar.",
     think: false,
+    advantages: ["Bedre forståelse av sammensatte spørsmål enn 4B", "Støtter bokmål og nynorsk", "God balanse på sterkere PC-er"],
+    limitations: ["Krever mer minne og er tregere enn Qwen 4B", "Kan bli langsom uten dedikert GPU"],
   },
   {
     id: "gemma3:12b",
@@ -44,6 +52,8 @@ window.TEK17Advisor.localLlmModels = [
     size: "8,1 GB",
     hardware: "24 GB RAM eller god dedikert GPU",
     description: "Sterkere språk- og resonneringskapasitet, men merkbart tregere uten god maskinvare.",
+    advantages: ["Sterk på komplekse problemstillinger og lange kilder", "Bedre nyansering enn de mindre modellene", "God generell svarkvalitet"],
+    limitations: ["Høyt minnebehov og lang responstid på vanlige PC-er", "Ikke spesielt trent for norsk fagterminologi"],
   },
   {
     id: "NbAiLab/borealis-instruct-preview:12b",
@@ -52,6 +62,8 @@ window.TEK17Advisor.localLlmModels = [
     size: "8,7 GB",
     hardware: "24 GB RAM eller god dedikert GPU",
     description: "Større norsktilpasset forhåndsversjon for maskiner med god kapasitet.",
+    advantages: ["Større norsktilpasset modell", "Best egnet til å prøve norsk språk og terminologi i krevende spørsmål", "Mer kapasitet enn Borealis 4B"],
+    limitations: ["Forhåndsversjon som fortsatt må kvalitetstestes", "Krever mye minne og kan være svært treg uten god GPU"],
   },
 ];
 

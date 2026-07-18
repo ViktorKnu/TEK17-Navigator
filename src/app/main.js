@@ -147,6 +147,16 @@ function renderLlmModelDetails() {
       <span>${model.hardware}</span>
     </div>
     <p>${model.description}</p>
+    <dl class="llm-model-tradeoffs">
+      <div>
+        <dt>Fordeler</dt>
+        <dd><ul>${model.advantages.map((item) => `<li>${item}</li>`).join("")}</ul></dd>
+      </div>
+      <div>
+        <dt>Vær obs på</dt>
+        <dd><ul>${model.limitations.map((item) => `<li>${item}</li>`).join("")}</ul></dd>
+      </div>
+    </dl>
   `;
 }
 
