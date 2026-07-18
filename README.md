@@ -99,8 +99,9 @@ TEK17-assistenten kan bruke en lokal Ollama-modell:
 
 ```powershell
 ollama serve
-ollama pull llama3.1:8b
 ```
+
+Modell velges i appen. Nedlasting starter bare når brukeren trykker **Klargjør assistent**.
 
 Appen bruker Ollama-endepunktene:
 
@@ -112,17 +113,22 @@ Hvis Ollama ikke svarer, faller assistenten tilbake til kildebaserte svar uten L
 
 ## Modellvalg og Responstid
 
-Standardmodellen er foreløpig `llama3.1:8b`. Den gir brukbare lokale svar, men kan være treg på maskiner med begrenset CPU/GPU-ressurser.
+Appen tilbyr bare modeller som er laget for norsk eller har dokumentert flerspråklig støtte. Standardvalget er `qwen3:4b-instruct` fordi det gir en bedre balanse mellom norsk språk, kvalitet og responstid enn den tidligere standardmodellen `llama3.1:8b`.
 
-Videre arbeid:
+| Modell | Profil | Nedlasting | Anbefalt maskin |
+| --- | --- | ---: | --- |
+| `qwen3:4b-instruct` | Rask, anbefalt | 2,5 GB | 8 GB RAM eller mer |
+| `gemma3:4b` | Balansert | 3,3 GB | 8 GB RAM eller mer |
+| `NbAiLab/borealis-instruct-preview:4b` | Norsk forhåndsversjon | 3,3 GB | 8 GB RAM eller mer |
+| `qwen3:8b` | Grundig | 5,2 GB | 16 GB RAM eller dedikert GPU |
+| `gemma3:12b` | Kraftig PC | 8,1 GB | 24 GB RAM eller god dedikert GPU |
+| `NbAiLab/borealis-instruct-preview:12b` | Norsk, kraftig PC | 8,7 GB | 24 GB RAM eller god dedikert GPU |
 
-- teste om en nyere eller mindre modell gir raskere responstid
-- sammenligne svarkvalitet mot `llama3.1:8b`
-- vurdere egen "rask modell" for korte spørsmål
-- vurdere egen "grundig modell" for tyngre problemstillinger
-- måle første svar etter oppstart og svar nummer to når modellen allerede er varm
+Qwen 3 støtter bokmål og nynorsk. Gemma 3 4B/12B har støtte for over 140 språk. Borealis er norsktilpasset av Nasjonalbibliotekets AI-lab, men er foreløpig publisert som en forhåndsversjon.
 
-Målet er å finne en modell som gir god nok faglig kvalitet uten at brukeren må vente unødvendig lenge.
+Modellkilder: [Qwen 3](https://qwenlm.github.io/blog/qwen3/), [Gemma 3](https://ai.google.dev/gemma/docs/core/model_card_3) og [Borealis Preview](https://huggingface.co/collections/NbAiLab/borealis-preview).
+
+Faktisk hastighet avhenger særlig av RAM, CPU og GPU. Første svar etter oppstart tar normalt lengre tid enn neste svar fordi modellen først må lastes i minnet. Qwen 8B kjøres uten tenkemodus i appen for å redusere ventetiden.
 
 ## Faglig Avgrensning
 

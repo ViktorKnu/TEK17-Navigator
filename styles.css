@@ -597,6 +597,11 @@ select {
   font-size: 1rem;
   font-weight: 650;
   margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+
+.llm-onboarding-summary > span:last-child {
+  min-width: 0;
 }
 
 .llm-chevron {
@@ -699,6 +704,40 @@ select {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.llm-model-picker {
+  display: grid;
+  gap: 8px;
+}
+
+.llm-model-details {
+  background: #ffffff;
+  border: 1px solid #d8e0e6;
+  border-radius: 7px;
+  display: grid;
+  gap: 8px;
+  padding: 11px 12px;
+}
+
+.llm-model-details div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 14px;
+}
+
+.llm-model-details strong {
+  color: var(--accent-strong);
+}
+
+.llm-model-details span {
+  color: #53606d;
+  font-size: 0.84rem;
+}
+
+.llm-model-details p {
+  font-size: 0.88rem;
+  margin: 0;
 }
 
 .llm-actions .ghost-action,

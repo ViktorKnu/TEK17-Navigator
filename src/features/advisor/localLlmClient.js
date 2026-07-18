@@ -1,10 +1,64 @@
 window.TEK17Advisor = window.TEK17Advisor || {};
 
+const LOCAL_LLM_MODEL_STORAGE_KEY = "tek17LocalLlmModel";
+const DEFAULT_LOCAL_LLM_MODEL = "qwen3:4b-instruct";
+
+window.TEK17Advisor.localLlmModels = [
+  {
+    id: "qwen3:4b-instruct",
+    name: "Qwen 3 4B Instruct",
+    tier: "Rask",
+    size: "2,5 GB",
+    hardware: "8 GB RAM eller mer",
+    description: "Anbefalt standardvalg. God norskstøtte og korte svar uten ekstra tenkemodus.",
+  },
+  {
+    id: "gemma3:4b",
+    name: "Gemma 3 4B",
+    tier: "Balansert",
+    size: "3,3 GB",
+    hardware: "8 GB RAM eller mer",
+    description: "Flerspråklig alternativ med litt høyere ressursbruk enn Qwen 4B.",
+  },
+  {
+    id: "NbAiLab/borealis-instruct-preview:4b",
+    name: "Borealis 4B",
+    tier: "Norsk forhåndsversjon",
+    size: "3,3 GB",
+    hardware: "8 GB RAM eller mer",
+    description: "Norsktilpasset modell fra Nasjonalbibliotekets AI-lab. Fortsatt en forhåndsversjon.",
+  },
+  {
+    id: "qwen3:8b",
+    name: "Qwen 3 8B",
+    tier: "Grundig",
+    size: "5,2 GB",
+    hardware: "16 GB RAM eller dedikert GPU",
+    description: "Bedre kapasitet for sammensatte problemstillinger. Tenkemodus er slått av for raskere svar.",
+    think: false,
+  },
+  {
+    id: "gemma3:12b",
+    name: "Gemma 3 12B",
+    tier: "Kraftig PC",
+    size: "8,1 GB",
+    hardware: "24 GB RAM eller god dedikert GPU",
+    description: "Sterkere språk- og resonneringskapasitet, men merkbart tregere uten god maskinvare.",
+  },
+  {
+    id: "NbAiLab/borealis-instruct-preview:12b",
+    name: "Borealis 12B",
+    tier: "Norsk, kraftig PC",
+    size: "8,7 GB",
+    hardware: "24 GB RAM eller god dedikert GPU",
+    description: "Større norsktilpasset forhåndsversjon for maskiner med god kapasitet.",
+  },
+];
+
 window.TEK17Advisor.localLlmConfig = {
   enabled: isLocalRuntime() || isLocalLlmEnabledByUser(),
   baseUrl: "http://localhost:11434",
-  model: "llama3.1:8b",
-  autoPull: true,
+  model: getSavedLocalModel(),
   keepAlive: "10m",
   requestTimeouts: {
     check: 5000,
@@ -28,29 +82,33 @@ window.TEK17Advisor.askLocalLlm = async function askLocalLlm(question, matchedSo
   if (!config.enabled || !matchedSources.length) return null;
 
   notifyLocalLlmStatus("checking", "Sjekker lokal LLM og modell...");
-  await ensureLocalModel(config);
+  await ensureLocalModel(config, { pullIfMissing: false });
 
   notifyLocalLlmStatus("generating", "Lokal LLM skriver et kort svar...");
+  const modelProfile = getLocalLlmModel(config.model);
+  const chatBody = {
+    model: config.model,
+    stream: false,
+    keep_alive: config.keepAlive,
+    messages: [
+      {
+        role: "system",
+        content:
+          "Du er TEK17 Navigator sin lokale fagassistent. Svar kun på norsk. Bruk bare forskrift og veiledning som ligger i kildegrunnlaget. For problemstillinger skal du først lete etter om situasjonen er dekket av VTEK/veiledning og preaksepterte ytelser. Hvis den er dekket, si at den ser ut til å følge preakseptert spor og vis til kilden. Hvis den ikke er dekket, si tydelig at den ikke står i kildegrunnlaget og må vurderes som fravik, analyse eller særskilt dokumentasjon. Ikke finn på paragrafer, krav, standarder eller tall.",
+      },
+      {
+        role: "user",
+        content: buildLocalPrompt(question, matchedSources, legalReferences, context),
+      },
+    ],
+    options: config.generationOptions,
+  };
+  if (typeof modelProfile?.think === "boolean") chatBody.think = modelProfile.think;
+
   const response = await fetch(`${config.baseUrl}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: config.model,
-      stream: false,
-      keep_alive: config.keepAlive,
-      messages: [
-        {
-          role: "system",
-          content:
-            "Du er TEK17 Navigator sin lokale fagassistent. Svar kun på norsk. Bruk bare forskrift og veiledning som ligger i kildegrunnlaget. For problemstillinger skal du først lete etter om situasjonen er dekket av VTEK/veiledning og preaksepterte ytelser. Hvis den er dekket, si at den ser ut til å følge preakseptert spor og vis til kilden. Hvis den ikke er dekket, si tydelig at den ikke står i kildegrunnlaget og må vurderes som fravik, analyse eller særskilt dokumentasjon. Ikke finn på paragrafer, krav, standarder eller tall.",
-        },
-        {
-          role: "user",
-          content: buildLocalPrompt(question, matchedSources, legalReferences, context),
-        },
-      ],
-      options: config.generationOptions,
-    }),
+    body: JSON.stringify(chatBody),
     signal: AbortSignal.timeout(config.requestTimeouts.generate),
   });
 
@@ -67,6 +125,20 @@ window.TEK17Advisor.askLocalLlm = async function askLocalLlm(question, matchedSo
 };
 
 window.TEK17Advisor.ensureLocalModel = ensureLocalModel;
+window.TEK17Advisor.getLocalLlmModel = getLocalLlmModel;
+window.TEK17Advisor.setLocalLlmModel = function setLocalLlmModel(modelId) {
+  const model = getLocalLlmModel(modelId);
+  if (!model) throw new Error(`Ukjent lokal modell: ${modelId}`);
+
+  window.TEK17Advisor.localLlmConfig.model = model.id;
+  localModelReadyPromise = null;
+  try {
+    window.localStorage?.setItem(LOCAL_LLM_MODEL_STORAGE_KEY, model.id);
+  } catch (error) {
+    console.info("Kunne ikke lagre valgt lokal modell.", error);
+  }
+  return model;
+};
 window.TEK17Advisor.resetLocalModelCheck = function resetLocalModelCheck() {
   localModelReadyPromise = null;
 };
@@ -74,7 +146,7 @@ window.TEK17Advisor.checkLocalLlm = checkLocalLlm;
 window.TEK17Advisor.prepareLocalLlm = async function prepareLocalLlm() {
   const config = window.TEK17Advisor.localLlmConfig;
   notifyLocalLlmStatus("checking", "Sjekker Ollama og lokal modell...");
-  await ensureLocalModel(config);
+  await ensureLocalModel(config, { pullIfMissing: true });
   enableLocalLlm();
   return checkLocalLlm();
 };
@@ -94,11 +166,9 @@ async function checkLocalLlm() {
   };
 }
 
-async function ensureLocalModel(config) {
-  if (!config.autoPull) return;
-
+async function ensureLocalModel(config, { pullIfMissing = false } = {}) {
   if (!localModelReadyPromise) {
-    localModelReadyPromise = ensureLocalModelOnce(config).catch((error) => {
+    localModelReadyPromise = ensureLocalModelOnce(config, pullIfMissing).catch((error) => {
       localModelReadyPromise = null;
       throw error;
     });
@@ -107,10 +177,15 @@ async function ensureLocalModel(config) {
   await localModelReadyPromise;
 }
 
-async function ensureLocalModelOnce(config) {
+async function ensureLocalModelOnce(config, pullIfMissing) {
   if (await hasLocalModel(config)) {
     notifyLocalLlmStatus("ready", `Assistent klar med ${config.model}.`);
     return;
+  }
+
+  if (!pullIfMissing) {
+    notifyLocalLlmStatus("missing-model", `${config.model} er ikke lastet ned ennå.`);
+    throw new Error(`${config.model} må klargjøres før den kan brukes`);
   }
 
   notifyLocalLlmStatus("pulling", `Laster ned ${config.model}. Dette kan ta litt tid første gang.`);
@@ -149,7 +224,27 @@ async function pullLocalModel(config) {
 
 function isSameModel(candidate, requested) {
   if (!candidate) return false;
-  return candidate === requested || `${candidate}:latest` === requested || candidate === `${requested}:latest`;
+  const normalizedCandidate = candidate.toLowerCase();
+  const normalizedRequested = requested.toLowerCase();
+  return (
+    normalizedCandidate === normalizedRequested ||
+    `${normalizedCandidate}:latest` === normalizedRequested ||
+    normalizedCandidate === `${normalizedRequested}:latest`
+  );
+}
+
+function getLocalLlmModel(modelId) {
+  return window.TEK17Advisor.localLlmModels.find((model) => model.id === modelId) ?? null;
+}
+
+function getSavedLocalModel() {
+  try {
+    const savedModel = window.localStorage?.getItem(LOCAL_LLM_MODEL_STORAGE_KEY);
+    if (getLocalLlmModel(savedModel)) return savedModel;
+  } catch (error) {
+    console.info("Kunne ikke lese valgt lokal modell.", error);
+  }
+  return DEFAULT_LOCAL_LLM_MODEL;
 }
 
 function notifyLocalLlmStatus(kind, message) {

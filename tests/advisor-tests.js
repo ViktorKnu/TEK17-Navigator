@@ -86,17 +86,17 @@ function expectIncludes(label, actual, expected) {
   };
 
   advisor.localLlmConfig.enabled = true;
-  advisor.localLlmConfig.autoPull = true;
   advisor.localLlmConfig.baseUrl = "http://ollama.test";
   const statusEvents = [];
   advisor.localLlmConfig.onStatus = (event) => statusEvents.push(event.kind);
   advisor.resetLocalModelCheck();
+  await advisor.prepareLocalLlm();
   const localAnswer = await advisor.askLocalLlm("Hva avgjør risikoklasse?", [advisor.sources[0]], data.legalReferences);
   advisor.localLlmConfig.enabled = false;
   advisor.localLlmConfig.onStatus = null;
   global.fetch = originalFetch;
 
-  expectIncludes("Lokal LLM laster ned manglende modell", calls.map((call) => call.url).join(" "), "/api/pull");
+  expectIncludes("Klargjøring laster ned valgt modell", calls.map((call) => call.url).join(" "), "/api/pull");
   expectIncludes("Lokal LLM svar rendres", localAnswer, "Lokalt LLM-svar");
   expectIncludes("Lokal LLM viser status", statusEvents.join(" "), "pulling");
   const chatBody = JSON.parse(calls.find((call) => call.url.endsWith("/api/chat")).options.body);
@@ -105,12 +105,47 @@ function expectIncludes(label, actual, expected) {
   expectIncludes("Lokal LLM får veiledningskilde", chatBody.messages.map((message) => message.content).join(" "), "Veiledning");
   expectIncludes("Lokal LLM får problemstillingsinstruks", chatBody.messages.map((message) => message.content).join(" "), "Preakseptert spor");
   expectIncludes("Lokal LLM får konkrete veiledningspunkter", chatBody.messages.map((message) => message.content).join(" "), "Konkrete punkter");
+  expectIncludes("Standardmodell er rask Qwen instruct", chatBody.model, "qwen3:4b-instruct");
+
+  advisor.setLocalLlmModel("qwen3:8b");
+  expectIncludes("Modellvalg oppdaterer konfigurasjonen", advisor.localLlmConfig.model, "qwen3:8b");
+  let qwenChatBody = null;
+  global.fetch = async (url, options = {}) => {
+    if (url.endsWith("/api/tags")) return mockJsonResponse({ models: [{ name: "qwen3:8b" }] });
+    if (url.endsWith("/api/chat")) {
+      qwenChatBody = JSON.parse(options.body);
+      return mockJsonResponse({ message: { content: "Svar uten tenkemodus." } });
+    }
+    throw new Error(`Unexpected fetch URL: ${url}`);
+  };
+  advisor.localLlmConfig.enabled = true;
+  await advisor.askLocalLlm("Test", [advisor.sources[0]], data.legalReferences);
+  advisor.localLlmConfig.enabled = false;
+  expectIncludes("Qwen 8B bruker ikke treg tenkemodus", String(qwenChatBody.think), "false");
+
+  advisor.setLocalLlmModel("gemma3:4b");
+  const missingModelCalls = [];
+  global.fetch = async (url) => {
+    missingModelCalls.push(url);
+    if (url.endsWith("/api/tags")) return mockJsonResponse({ models: [] });
+    throw new Error(`Unexpected fetch URL: ${url}`);
+  };
+  advisor.localLlmConfig.enabled = true;
+  try {
+    await advisor.askLocalLlm("Test", [advisor.sources[0]], data.legalReferences);
+  } catch (error) {
+    expectIncludes("Manglende modell gir tydelig feil", error.message, "må klargjøres");
+  }
+  advisor.localLlmConfig.enabled = false;
+  expectIncludes("Vanlig spørsmål starter ikke modellnedlasting", String(missingModelCalls.some((url) => url.endsWith("/api/pull"))), "false");
+
+  advisor.setLocalLlmModel("qwen3:8b");
 
   const checkCalls = [];
   global.fetch = async (url) => {
     checkCalls.push(url);
     if (url.endsWith("/api/tags")) {
-      return mockJsonResponse({ models: [{ name: "llama3.1:8b" }] });
+      return mockJsonResponse({ models: [{ name: "QWEN3:8B" }] });
     }
     throw new Error(`Unexpected fetch URL: ${url}`);
   };
@@ -123,6 +158,7 @@ function expectIncludes(label, actual, expected) {
 
   expectIncludes("Ollama-sjekk bruker tags", checkCalls.join(" "), "/api/tags");
   expectIncludes("Ollama-sjekk finner modell", String(checkResult.modelAvailable), "true");
+  expectIncludes("Modellsjekk tåler normalisert bokstavstørrelse", String(checkResult.modelAvailable), "true");
   expectIncludes("Ollama-sjekk aktiverer lokal LLM", String(advisor.localLlmConfig.enabled), "true");
   advisor.localLlmConfig.enabled = false;
 

@@ -319,8 +319,13 @@
                   <li data-step="install">Installer Ollama én gang på PC-en.</li>
                   <li data-step="run">Start Ollama lokalt.</li>
                   <li data-step="origin">Tillat Pages-adressen i Ollama ved behov.</li>
-                  <li data-step="model">Klargjør modellen <code>llama3.1:8b</code>.</li>
+                  <li data-step="model">Velg og klargjør en modell med norskstøtte.</li>
                 </ol>
+                <div class="llm-model-picker">
+                  <label for="llmModelSelect">Lokal modell</label>
+                  <select id="llmModelSelect"></select>
+                  <div class="llm-model-details" id="llmModelDetails" aria-live="polite"></div>
+                </div>
                 <div class="llm-actions">
                   <a class="ghost-action" href="https://ollama.com/download" target="_blank" rel="noreferrer">Last ned Ollama</a>
                   <button type="button" class="ghost-action" id="checkOllamaButton">Sjekk Ollama</button>

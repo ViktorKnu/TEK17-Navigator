@@ -119,7 +119,45 @@ function bindAdvisorStatus() {
 function bindLlmOnboarding() {
   $("llmOnboarding").dataset.mode = isLocalAssistantRuntime ? "local" : "pages";
   $("llmOnboarding").open = false;
+  renderLlmModelOptions();
+  $("llmModelSelect").addEventListener("change", selectLocalLlmModel);
   renderLlmSetupState(isLocalAssistantRuntime ? "unknown" : "pages");
+}
+
+function renderLlmModelOptions() {
+  const models = window.TEK17Advisor.localLlmModels;
+  const selectedModel = window.TEK17Advisor.localLlmConfig.model;
+  $("llmModelSelect").innerHTML = models
+    .map(
+      (model) =>
+        `<option value="${model.id}"${model.id === selectedModel ? " selected" : ""}>${model.name} · ${model.tier} · ${model.size}</option>`,
+    )
+    .join("");
+  renderLlmModelDetails();
+}
+
+function renderLlmModelDetails() {
+  const model = window.TEK17Advisor.getLocalLlmModel(window.TEK17Advisor.localLlmConfig.model);
+  if (!model) return;
+
+  $("llmModelDetails").innerHTML = `
+    <div>
+      <strong>${model.tier}</strong>
+      <span>${model.size} nedlasting</span>
+      <span>${model.hardware}</span>
+    </div>
+    <p>${model.description}</p>
+  `;
+}
+
+function selectLocalLlmModel(event) {
+  const model = window.TEK17Advisor.setLocalLlmModel(event.target.value);
+  renderLlmModelDetails();
+  renderLlmSetupState("unknown");
+  updateAdvisorStatus({
+    kind: "idle",
+    message: `${model.name} er valgt. Sjekk Ollama eller klargjør modellen før bruk.`,
+  });
 }
 
 function bindRiskCriteria() {
@@ -681,7 +719,7 @@ async function answerAdvisorQuestion() {
   $("advisorQuestion").value = "";
   const pendingMessageId = appendAdvisorMessage(
     "assistant",
-    `<p class="field-note">Henter relevante kilder og sjekker lokal LLM. Første gang kan modellen lastes ned automatisk.</p>`,
+    `<p class="field-note">Henter relevante kilder og sjekker den valgte lokale modellen.</p>`,
   );
 
   try {
@@ -827,17 +865,19 @@ function renderLlmSetupState(status) {
 
   onboarding.dataset.status = status;
   const currentOrigin = window.location?.origin ?? "https://viktorknu.github.io";
+  const model = window.TEK17Advisor.getLocalLlmModel(window.TEK17Advisor.localLlmConfig.model);
+  const modelName = model?.name ?? window.TEK17Advisor.localLlmConfig.model;
 
   const messages = {
     pages:
       "Du er på nettversjonen. Klassifisering og kildebaserte svar fungerer med en gang. For lokal LLM må Ollama kjøre og tillate denne Pages-adressen via OLLAMA_ORIGINS.",
     unknown:
-      "Sjekk om Ollama kjører. Hvis den gjør det, kan appen klargjøre modellen automatisk.",
-    checking: "Sjekker om Ollama kjører og om modellen finnes lokalt.",
+      `${modelName} er valgt. Sjekk om Ollama kjører, og klargjør modellen hvis den ikke er installert.`,
+    checking: `Sjekker om Ollama kjører og om ${modelName} finnes lokalt.`,
     "ollama-missing": `Ollama svarer ikke ennå. Installer/start Ollama. På Pages må Ollama også tillate ${currentOrigin} i OLLAMA_ORIGINS.`,
-    "missing-model": "Ollama kjører, men modellen mangler. Trykk Klargjør assistent for å laste den ned.",
-    pulling: "Modellen lastes ned eller klargjøres. Dette kan ta litt tid første gang.",
-    ready: "Lokal assistent er klar. Spørsmål kan nå besvares med lokal LLM og kildegrunnlag.",
+    "missing-model": `${modelName} mangler. Trykk Klargjør assistent for å laste ned ${model?.size ?? "modellen"}.`,
+    pulling: `${modelName} lastes ned eller klargjøres. Dette kan ta litt tid første gang.`,
+    ready: `${modelName} er klar og brukes sammen med kildegrunnlaget.`,
   };
 
   text.textContent = messages[status] ?? messages.unknown;
@@ -864,6 +904,7 @@ function updateSetupSteps(status) {
 function setLlmButtonsDisabled(disabled) {
   $("checkOllamaButton").disabled = disabled;
   $("prepareLlmButton").disabled = disabled;
+  $("llmModelSelect").disabled = disabled;
 }
 
 function setBooleanChoice(id, value) {
