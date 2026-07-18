@@ -6,6 +6,11 @@ window.TEK17Advisor.localLlmConfig = {
   model: "llama3.1:8b",
   autoPull: true,
   keepAlive: "10m",
+  requestTimeouts: {
+    check: 5000,
+    generate: 180000,
+    pull: 1800000,
+  },
   generationOptions: {
     temperature: 0.1,
     top_k: 20,
@@ -18,7 +23,7 @@ window.TEK17Advisor.localLlmConfig = {
 
 let localModelReadyPromise = null;
 
-window.TEK17Advisor.askLocalLlm = async function askLocalLlm(question, matchedSources, legalReferences) {
+window.TEK17Advisor.askLocalLlm = async function askLocalLlm(question, matchedSources, legalReferences, context = {}) {
   const config = window.TEK17Advisor.localLlmConfig;
   if (!config.enabled || !matchedSources.length) return null;
 
@@ -41,11 +46,12 @@ window.TEK17Advisor.askLocalLlm = async function askLocalLlm(question, matchedSo
         },
         {
           role: "user",
-          content: buildLocalPrompt(question, matchedSources, legalReferences),
+          content: buildLocalPrompt(question, matchedSources, legalReferences, context),
         },
       ],
       options: config.generationOptions,
     }),
+    signal: AbortSignal.timeout(config.requestTimeouts.generate),
   });
 
   if (!response.ok) {
@@ -113,7 +119,9 @@ async function ensureLocalModelOnce(config) {
 }
 
 async function hasLocalModel(config) {
-  const response = await fetch(`${config.baseUrl}/api/tags`);
+  const response = await fetch(`${config.baseUrl}/api/tags`, {
+    signal: AbortSignal.timeout(config.requestTimeouts.check),
+  });
   if (!response.ok) {
     throw new Error(`Ollama svarte med HTTP ${response.status} ved modellkontroll`);
   }
@@ -131,6 +139,7 @@ async function pullLocalModel(config) {
       model: config.model,
       stream: false,
     }),
+    signal: AbortSignal.timeout(config.requestTimeouts.pull),
   });
 
   if (!response.ok) {
@@ -180,7 +189,7 @@ function isLocalLlmEnabledByUser() {
   }
 }
 
-function buildLocalPrompt(question, matchedSources, legalReferences) {
+function buildLocalPrompt(question, matchedSources, legalReferences, context) {
   const sourceText = matchedSources
     .map((source) => {
       const refs = getReferences(source, legalReferences);
@@ -192,6 +201,7 @@ function buildLocalPrompt(question, matchedSources, legalReferences) {
         `Sjekk i VTEK/veiledning: ${source.vtekSearch ?? "Ikke angitt."}`,
         `Preakseptert spor: ${source.preacceptedPath ?? "Ikke angitt."}`,
         `Hvis det ikke står der: ${source.outsidePreaccepted ?? "Ikke angitt."}`,
+        `Konkrete punkter fra forskrift/veiledning:\n${(source.keyPoints ?? []).map((point) => `- ${point}`).join("\n") || "- Ingen ekstra punkter."}`,
         "Kilder:",
         refs.map((ref) => `- ${ref.tag}: ${ref.title}. ${ref.summary}`).join("\n"),
       ].join("\n");
@@ -199,6 +209,10 @@ function buildLocalPrompt(question, matchedSources, legalReferences) {
     .join("\n\n");
 
   return [
+    context.previousQuestions?.length
+      ? `Tidligere spørsmål i samme samtale:\n${context.previousQuestions.slice(-3).map((item) => `- ${item}`).join("\n")}`
+      : "Tidligere spørsmål i samme samtale: Ingen.",
+    "",
     `Spørsmål: ${question}`,
     "",
     "Kildegrunnlag:",

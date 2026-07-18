@@ -3,10 +3,13 @@ window.TEK17Rules = window.TEK17Rules || {};
 window.TEK17Rules.classifyRisk = function classifyRisk(input, usage, legalReferences) {
   const reasons = [];
   const derivedValue = deriveRiskClassFromCriteria(input);
-  const rawMismatches = usage?.criteria ? getCriteriaMismatches(input, usage.criteria) : [];
-  const isMaxRiskClass = usage?.riskClass === 6 && !input.doesNotFitStandardType;
-  const mismatches = isMaxRiskClass ? rawMismatches.filter((label) => label !== "brannfare") : rawMismatches;
-  const warnings = getRiskInputWarnings(input, { ignoreFireHazardAtMaxRiskClass: isMaxRiskClass });
+  const mismatches = usage?.criteria ? getCriteriaMismatches(input, usage.criteria) : [];
+  const isMaxRiskClassWithElevatedFireHazard =
+    usage?.riskClass === 6 &&
+    !input.doesNotFitStandardType &&
+    mismatches.length === 1 &&
+    mismatches[0] === "brannfare";
+  const warnings = getRiskInputWarnings(input);
   const manualRiskClass = Number(input.manualRiskClassOverride) || null;
   const standardMatch = Boolean(usage?.riskClass && !input.doesNotFitStandardType && mismatches.length === 0);
   let value = standardMatch ? usage.riskClass : derivedValue;
@@ -28,6 +31,12 @@ window.TEK17Rules.classifyRisk = function classifyRisk(input, usage, legalRefere
         reasons.push(`Flervalget peker mot risikoklasse ${derivedValue} etter kriteriene i TEK17 § 11-2.`);
         value = derivedValue;
       }
+    } else if (isMaxRiskClassWithElevatedFireHazard) {
+      value = 6;
+      status = "conservative-working-class";
+      reasons.push(
+        `${usage.name} beholdes som RKL 6 for videre vurdering, men forhøyet brannfare ligger utenfor kriteriene for det preaksepterte tabelltreffet.`,
+      );
     } else if (usage?.riskClass) {
       reasons.push(`${usage.name} har normalt risikoklasse ${usage.riskClass}, men de endrede kriteriene treffer ikke rent i tabellen.`);
       value = mismatches.length || input.doesNotFitStandardType ? null : usage.riskClass;
@@ -124,7 +133,7 @@ function getCriteriaMismatches(input, preset) {
     .map((key) => labels[key]);
 }
 
-function getRiskInputWarnings(input, options = {}) {
+function getRiskInputWarnings(input) {
   const warnings = [];
 
   if (input.sporadicOccupancyOnly && input.overnightStay) {
@@ -135,7 +144,7 @@ function getRiskInputWarnings(input, options = {}) {
     warnings.push("Brukerne kan kjenne rømningsforholdene, men manglende evne til selvredning trekker vurderingen opp.");
   }
 
-  if (!options.ignoreFireHazardAtMaxRiskClass && !input.lowFireHazard && (!input.usersKnowEscapeRoutes || input.overnightStay)) {
+  if (!input.lowFireHazard && (!input.usersKnowEscapeRoutes || input.overnightStay)) {
     warnings.push("Forhøyet brannfare sammen med ukjente rømningsforhold eller overnatting passer dårlig i standardtabellen.");
   }
 

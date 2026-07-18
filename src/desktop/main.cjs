@@ -101,6 +101,9 @@ function ensureOllamaStarted() {
         stdio: "ignore",
         windowsHide: true,
       });
+      child.once("error", (error) => {
+        console.info("Kunne ikke starte Ollama automatisk.", error);
+      });
       child.unref();
     } catch (error) {
       console.info("Kunne ikke starte Ollama automatisk.", error);
@@ -109,6 +112,12 @@ function ensureOllamaStarted() {
 }
 
 function isOllamaReachable(callback) {
+  let completed = false;
+  const finish = (result) => {
+    if (completed) return;
+    completed = true;
+    callback(result);
+  };
   const request = http.get(
     {
       host: "127.0.0.1",
@@ -118,15 +127,15 @@ function isOllamaReachable(callback) {
     },
     (response) => {
       response.resume();
-      callback(response.statusCode >= 200 && response.statusCode < 500);
+      finish(response.statusCode >= 200 && response.statusCode < 500);
     },
   );
 
   request.on("timeout", () => {
     request.destroy();
-    callback(false);
+    finish(false);
   });
-  request.on("error", () => callback(false));
+  request.on("error", () => finish(false));
 }
 
 function findOllamaExecutable() {

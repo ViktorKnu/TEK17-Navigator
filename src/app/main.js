@@ -44,6 +44,7 @@ function init() {
   bindLlmOnboarding();
   bindTabs();
   bindRiskCriteria();
+  bindMeasureCriteria();
   renderAdvisorConversation();
   renderTemplates();
   renderUsageOptions();
@@ -129,6 +130,19 @@ function bindRiskCriteria() {
       }
     });
   });
+}
+
+function bindMeasureCriteria() {
+  ["complexityLevel", "failureConsequence"].forEach((id) => {
+    $(id).addEventListener("change", updateMeasureButtonState);
+  });
+}
+
+function updateMeasureButtonState() {
+  $("measureButton").disabled =
+    $("measureClassSection").disabled ||
+    !$("complexityLevel").value ||
+    !$("failureConsequence").value;
 }
 
 function bindTabs() {
@@ -255,6 +269,9 @@ function applyUsagePreset(usageId) {
 
   $("fireClassSection").disabled = true;
   $("measureClassSection").disabled = true;
+  $("complexityLevel").value = "";
+  $("failureConsequence").value = "";
+  updateMeasureButtonState();
   $("manualRiskClass").value = "";
   $("manualRiskControl").classList.add("hidden");
   $("lawButton").classList.add("hidden");
@@ -336,6 +353,7 @@ function classifyRisk() {
 
 function classifyFire() {
   if (!state.riskResult?.value) return;
+  if (!$("totalFloors").reportValidity() || !$("grossAreaPerFloor").reportValidity()) return;
 
   state.fireResult = runFireClassification(
     readFireInput(),
@@ -348,12 +366,14 @@ function classifyFire() {
   );
   state.measureResult = null;
   $("measureClassSection").disabled = false;
+  updateMeasureButtonState();
   $("lawButton").classList.add("hidden");
   renderResults();
 }
 
 function classifyMeasure() {
   if (!state.fireResult) return;
+  if (!$("complexityLevel").reportValidity() || !$("failureConsequence").reportValidity()) return;
 
   state.measureResult = runMeasureClassification(
     readMeasureInput(),
@@ -431,6 +451,7 @@ function getRiskCardVariant(result) {
 function formatRiskStatus(result) {
   if (result.status === "preaccepted") return "Preakseptert forslag";
   if (result.status === "manual-override") return "Manuelt valgt RKL";
+  if (result.status === "conservative-working-class") return "Konservativ arbeidsklasse, må dokumenteres";
   if (result.value && result.hasDeviation) return "Avvik fra byggtype";
   if (result.value) return "Kriteriebasert forslag";
   return "Krever faglig vurdering";
@@ -648,6 +669,10 @@ async function answerAdvisorQuestion() {
   }
 
   $("advisorButton").disabled = true;
+  const previousQuestions = advisorConversation
+    .filter((message) => message.role === "user")
+    .slice(-3)
+    .map((message) => message.content);
   updateAdvisorStatus({
     kind: "checking",
     message: "Henter relevante kilder...",
@@ -660,7 +685,7 @@ async function answerAdvisorQuestion() {
   );
 
   try {
-    const answer = await answerQuestion(question, legalReferences);
+    const answer = await answerQuestion(question, legalReferences, { previousQuestions });
     updateAdvisorMessage(pendingMessageId, answer);
   } catch (error) {
     console.info("TEK17-assistenten klarte ikke å svare.", error);

@@ -148,11 +148,11 @@
                 <div class="input-row">
                   <div>
                     <label for="totalFloors">Totalt antall etasjer</label>
-                    <input id="totalFloors" name="totalFloors" type="number" min="1" value="2" />
+                    <input id="totalFloors" name="totalFloors" type="number" min="1" step="1" value="2" required />
                   </div>
                   <div>
                     <label for="grossAreaPerFloor">Bruttoareal per etasje</label>
-                    <input id="grossAreaPerFloor" name="grossAreaPerFloor" type="number" min="0" value="450" />
+                    <input id="grossAreaPerFloor" name="grossAreaPerFloor" type="number" min="1" step="1" value="450" required />
                   </div>
                 </div>
 
@@ -207,7 +207,8 @@
                   </div>
                   <div>
                     <label for="complexityLevel">Kompleksitet og vanskelighetsgrad</label>
-                    <select id="complexityLevel">
+                    <select id="complexityLevel" required>
+                      <option value="" selected disabled>Velg nivå</option>
                       <option value="low">Lav</option>
                       <option value="medium">Middels</option>
                       <option value="high">Høy</option>
@@ -215,7 +216,8 @@
                   </div>
                   <div>
                     <label for="failureConsequence">Konsekvens ved feil eller mangler</label>
-                    <select id="failureConsequence">
+                    <select id="failureConsequence" required>
+                      <option value="" selected disabled>Velg konsekvens</option>
                       <option value="small">Små konsekvenser</option>
                       <option value="medium">Middels konsekvenser</option>
                       <option value="large">Store konsekvenser</option>
@@ -238,7 +240,7 @@
                   </label>
                 </div>
 
-                <button type="button" class="primary-action" id="measureButton">
+                <button type="button" class="primary-action" id="measureButton" disabled>
                   Foreslå tiltaksklasse
                 </button>
               </fieldset>

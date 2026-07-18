@@ -126,7 +126,7 @@ Målet er å finne en modell som gir god nok faglig kvalitet uten at brukeren m�
 
 ## Faglig Avgrensning
 
-Assistenten skal bare svare fra kilder som er lagt inn i appen. RAG-grunnlaget omfatter både forskrift og veiledning der det er relevant, blant annet:
+Assistenten skal bare svare fra kilder som er lagt inn i appen. RAG-grunnlaget omfatter både forskrift og konkrete punkter fra veiledningen der det er relevant, blant annet:
 
 - TEK17 kapittel 11
 - veiledning til TEK17 kapittel 11
@@ -135,6 +135,8 @@ Assistenten skal bare svare fra kilder som er lagt inn i appen. RAG-grunnlaget o
 - TEK17 § 11-3 om brannklasser
 - veiledning til TEK17 § 11-3
 - SAK10 kapittel 9 om tiltaksklasser
+
+Samtalen sender de siste brukerproblemstillingene videre som kontekst til neste spørsmål. Tiltaksklasse foreslås fra valgt kombinasjon av kompleksitet/vanskelighetsgrad og konsekvens etter SAK10 § 9-4. RKL, BKL og analysebehov er vurderingsmomenter, ikke automatiske hopp til en bestemt tiltaksklasse.
 
 Ved konkrete byggesaker må svar og klassifisering alltid kontrolleres mot DIBK og faglig vurdering.
 

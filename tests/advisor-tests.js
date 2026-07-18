@@ -47,6 +47,18 @@ function expectIncludes(label, actual, expected) {
     "Preakseptert spor",
   );
   expectIncludes(
+    "Konkrete VTEK-punkter følger kildesvaret",
+    await advisor.answerQuestion("Hva er brannklasse for RKL 6 i tre etasjer?", data.legalReferences),
+    "RKL 6 gir BKL 1 i én etasje, BKL 2 i to til fire etasjer",
+  );
+  expectIncludes(
+    "Oppfølgingsspørsmål bruker tidligere samtalekontekst",
+    await advisor.answerQuestion("Gjelder den også her?", data.legalReferences, {
+      previousQuestions: ["Kan et hotell i to etasjer bruke unntaket for brannklasse?"],
+    }),
+    "Overnattingsbygg med høyst to etasjer og under 300 m2",
+  );
+  expectIncludes(
     "Uten treff sier at VTEK-grunnlaget ikke avklarer",
     await advisor.answerQuestion("Kan jeg bruke en ukjent spesialløsning for kaffemaskinrom?", data.legalReferences),
     "ikke nok lokalt kildegrunnlag",
@@ -92,6 +104,7 @@ function expectIncludes(label, actual, expected) {
   expectIncludes("Lokal LLM holdes varm", chatBody.keep_alive, "10m");
   expectIncludes("Lokal LLM får veiledningskilde", chatBody.messages.map((message) => message.content).join(" "), "Veiledning");
   expectIncludes("Lokal LLM får problemstillingsinstruks", chatBody.messages.map((message) => message.content).join(" "), "Preakseptert spor");
+  expectIncludes("Lokal LLM får konkrete veiledningspunkter", chatBody.messages.map((message) => message.content).join(" "), "Konkrete punkter");
 
   const checkCalls = [];
   global.fetch = async (url) => {

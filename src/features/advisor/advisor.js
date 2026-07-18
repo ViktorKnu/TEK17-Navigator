@@ -1,9 +1,18 @@
 window.TEK17Advisor = window.TEK17Advisor || {};
 
-window.TEK17Advisor.answerQuestion = async function answerQuestion(question, legalReferences) {
-  const matchedSources = window.TEK17Advisor.retrieveSources(question, window.TEK17Advisor.sources);
+window.TEK17Advisor.answerQuestion = async function answerQuestion(question, legalReferences, context = {}) {
+  const directSources = window.TEK17Advisor.retrieveSources(question, window.TEK17Advisor.sources);
+  const contextualSources = context.previousQuestions?.length
+    ? window.TEK17Advisor.retrieveSources(
+        `${context.previousQuestions.slice(-3).join(" ")} ${question}`,
+        window.TEK17Advisor.sources,
+      )
+    : [];
+  const matchedSources = Array.from(
+    new Map([...directSources, ...contextualSources].map((source) => [source.id, source])).values(),
+  ).slice(0, 3);
   try {
-    const localAnswer = await window.TEK17Advisor.askLocalLlm(question, matchedSources, legalReferences);
+    const localAnswer = await window.TEK17Advisor.askLocalLlm(question, matchedSources, legalReferences, context);
     if (localAnswer) return localAnswer;
   } catch (error) {
     window.TEK17Advisor.localLlmConfig?.onStatus?.({

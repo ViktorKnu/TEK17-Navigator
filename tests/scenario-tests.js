@@ -90,8 +90,8 @@ expect("Bolig med ukjente romningsforhold -> kriteriebasert status", riskWithOve
 expect("Skole med forhoyet brannfare -> beholder RKL 3", riskWithOverrides("skole", { lowFireHazard: false }).value, 3);
 expect("Skole med forhoyet brannfare -> avvik dokumenteres", riskWithOverrides("skole", { lowFireHazard: false }).hasDeviation, true);
 expect("Hotell RKL 6 med forhoyet brannfare -> beholder RKL 6", riskWithOverrides("hotell", { lowFireHazard: false }).value, 6);
-expect("Hotell RKL 6 med forhoyet brannfare -> fortsatt preakseptert", riskWithOverrides("hotell", { lowFireHazard: false }).status, "preaccepted");
-expect("Hotell RKL 6 med forhoyet brannfare -> ingen RKL-avvik", riskWithOverrides("hotell", { lowFireHazard: false }).hasDeviation, false);
+expect("Hotell RKL 6 med forhoyet brannfare -> konservativ arbeidsklasse", riskWithOverrides("hotell", { lowFireHazard: false }).status, "conservative-working-class");
+expect("Hotell RKL 6 med forhoyet brannfare -> RKL-avvik dokumenteres", riskWithOverrides("hotell", { lowFireHazard: false }).hasDeviation, true);
 expect("Kontor med overnatting og hoy brannfare -> manuell vurdering", riskWithOverrides("kontor", { overnightStay: true }).value, null);
 expect("Kontor med overnatting og hoy brannfare -> manuell status", riskWithOverrides("kontor", { overnightStay: true }).status, "manual-assessment");
 expect("Kontor med manuell RKL etter vurdering -> bruker valgt RKL videre", riskWithOverrides("kontor", { overnightStay: true, manualRiskClassOverride: 4 }).value, 4);
@@ -119,9 +119,14 @@ expect("BKL4 trigger >16 etasjer -> analysestatus", fire("kontor", 17).fireResul
 expect("BKL4 trigger under terreng -> BKL 4", fire("kontor", 2, { mainlyBelowGround: true }).fireResult.finalValue, 4);
 
 expect("Tiltaksklasse enkel preakseptert oppgave -> TKL 1", measure("kontor", 2).value, 1);
-expect("Tiltaksklasse BKL 3 -> TKL 2", measure("kontor", 5, { taskType: "fire-detailing" }).value, 2);
-expect("Tiltaksklasse analyse -> TKL 3", measure("kontor", 2, { analysis: true }).value, 3);
-expect("Tiltaksklasse RKL 6 -> TKL 3", measure("hotell", 2).value, 3);
+expect("Tiltaksklasse lav kompleksitet og middels konsekvens -> TKL 2", measure("kontor", 2, { consequence: "medium" }).value, 2);
+expect("Tiltaksklasse lav kompleksitet og stor konsekvens -> TKL 2", measure("kontor", 2, { consequence: "large" }).value, 2);
+expect("Tiltaksklasse middels kompleksitet og liten konsekvens -> TKL 2", measure("kontor", 2, { complexity: "medium" }).value, 2);
+expect("Tiltaksklasse middels kompleksitet og stor konsekvens -> TKL 3", measure("kontor", 2, { complexity: "medium", consequence: "large" }).value, 3);
+expect("Tiltaksklasse hoy kompleksitet -> TKL 3", measure("kontor", 2, { complexity: "high" }).value, 3);
+expect("BKL 3 fastsetter ikke tiltaksklasse alene", measure("kontor", 5, { taskType: "fire-detailing" }).value, 1);
+expect("Analyse fastsetter ikke tiltaksklasse alene", measure("kontor", 2, { analysis: true }).value, 1);
+expect("RKL 6 fastsetter ikke tiltaksklasse alene", measure("hotell", 2).value, 1);
 
 for (const check of checks) {
   console.log(`${check.ok ? "PASS" : "FAIL"} | ${check.label} | expected=${check.expected} actual=${check.actual}`);
