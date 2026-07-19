@@ -149,15 +149,19 @@ For å holde responstiden nede og redusere frie tillegg er lokale svar begrenset
 
 ## Faglig Avgrensning
 
-Assistenten skal bare svare fra kilder som er lagt inn i appen. RAG-grunnlaget omfatter både forskrift og konkrete punkter fra veiledningen der det er relevant, blant annet:
+Assistenten skal bare svare fra kilder som er lagt inn i appen. RAG-grunnlaget dekker hele TEK17 kapittel 11 og deler inn stoffet i mindre kildebiter etter paragraf, ledd eller tema. Hver kildebit er merket som forskriftskrav, veiledning eller preakseptert ytelse. Appens egne vurderingspåminnelser vises separat som faglige merknader.
 
-- TEK17 kapittel 11
-- veiledning til TEK17 kapittel 11
-- TEK17 § 11-2 om risikoklasser
-- veiledning til TEK17 § 11-2
-- TEK17 § 11-3 om brannklasser
-- veiledning til TEK17 § 11-3
+Kildegrunnlaget omfatter blant annet:
+
+- TEK17 §§ 11-1 til 11-17 med veiledning
+- risikoklasse, brannklasse, unntak og blandet bruk
+- bæreevne, eksplosjon, brannspredning, seksjonering og brannceller
+- materialer, isolasjon, tekniske installasjoner og gjennomføringer
+- rømning, aktive tiltak, utganger og rømningsveier
+- manuell slokking og tilrettelegging for brannvesenet
 - SAK10 kapittel 9 om tiltaksklasser
+
+Kildesøket prioriterer eksplisitte paragrafhenvisninger, faguttrykk og fraser. Det støtter vanlige synonymer, avviser svake enkelttreff og henter dynamisk opptil seks kildebiter når en problemstilling berører flere temaer.
 
 Samtalen sender de siste brukerproblemstillingene videre som kontekst til neste spørsmål. Tiltaksklasse foreslås fra valgt kombinasjon av kompleksitet/vanskelighetsgrad og konsekvens etter SAK10 § 9-4. RKL, BKL og analysebehov er vurderingsmomenter, ikke automatiske hopp til en bestemt tiltaksklasse.
 

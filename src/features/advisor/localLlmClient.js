@@ -302,9 +302,12 @@ function buildLocalPrompt(question, matchedSources, legalReferences, context) {
       const refs = getReferences(source, legalReferences);
       return [
         `Tema: ${source.title}`,
+        `Kildetype: ${source.sourceType ?? "ikke angitt"}`,
+        `Paragraf: ${source.section ?? "ikke angitt"}`,
+        `Ledd/tema: ${source.paragraph ?? "ikke angitt"}`,
         `Kort svar: ${source.shortAnswer}`,
         `Praktisk betydning: ${source.practicalMeaning}`,
-        `Vurder nærmere: ${source.assessmentNote}`,
+        `Faglig merknad fra appen: ${source.assessmentNote}`,
         `Sjekk i VTEK/veiledning: ${source.vtekSearch ?? "Ikke angitt."}`,
         `Preakseptert spor: ${source.preacceptedPath ?? "Ikke angitt."}`,
         `Hvis det ikke står der: ${source.outsidePreaccepted ?? "Ikke angitt."}`,

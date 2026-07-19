@@ -10,7 +10,7 @@ window.TEK17Advisor.answerQuestion = async function answerQuestion(question, leg
     : [];
   const matchedSources = Array.from(
     new Map([...directSources, ...contextualSources].map((source) => [source.id, source])).values(),
-  ).slice(0, 3);
+  ).slice(0, 6);
   try {
     const localAnswer = await window.TEK17Advisor.askLocalLlm(question, matchedSources, legalReferences, context);
     if (localAnswer) return localAnswer;

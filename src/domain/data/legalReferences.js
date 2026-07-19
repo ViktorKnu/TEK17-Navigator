@@ -57,6 +57,21 @@ window.TEK17Data.legalReferences = {
     summary:
       "Bestemmelsen har egne unntak for enkelte bolig-, forsamlings-, salgs- og overnattingsbygg, og peker ut byggverk som må vurderes i brannklasse 4.",
   },
+  section11_1: chapter11Reference("11-1", "Sikkerhet ved brann", "i"),
+  section11_4: chapter11Reference("11-4", "Bæreevne og stabilitet", "ii"),
+  section11_5: chapter11Reference("11-5", "Sikkerhet ved eksplosjon", "ii"),
+  section11_6: chapter11Reference("11-6", "Tiltak mot brannspredning mellom byggverk", "iii"),
+  section11_7: chapter11Reference("11-7", "Brannseksjoner", "iii"),
+  section11_8: chapter11Reference("11-8", "Brannceller", "iii"),
+  section11_9: chapter11Reference("11-9", "Materialer og produkters egenskaper ved brann", "iii"),
+  section11_10: chapter11Reference("11-10", "Tekniske installasjoner", "iii"),
+  section11_11: chapter11Reference("11-11", "Generelle krav om rømning og redning", "iv"),
+  section11_12: chapter11Reference("11-12", "Tiltak for å påvirke rømnings- og redningstider", "iv"),
+  section11_13: chapter11Reference("11-13", "Utgang fra branncelle", "iv"),
+  section11_14: chapter11Reference("11-14", "Rømningsvei", "iv"),
+  section11_15: chapter11Reference("11-15", "Tilrettelegging for redning av husdyr", "iv"),
+  section11_16: chapter11Reference("11-16", "Tilrettelegging for manuell slokking", "v"),
+  section11_17: chapter11Reference("11-17", "Tilrettelegging for rednings- og slokkemannskap", "v"),
   measure93: {
     title: "SAK10 § 9-3 Fastsettelse av tiltaksklasser",
     tag: "SAK10",
@@ -80,6 +95,15 @@ window.TEK17Data.legalReferences = {
   },
 };
 
+function chapter11Reference(section, title, part) {
+  return {
+    title: `TEK17 § ${section} ${title} med veiledning`,
+    tag: "TEK17/VTEK",
+    url: `https://www.dibk.no/regelverk/byggteknisk-forskrift-tek17/11/${part}/${section}/`,
+    summary: `Gjeldende forskriftskrav, veiledning og preaksepterte ytelser til TEK17 § ${section} hos Direktoratet for byggkvalitet.`,
+  };
+}
+
 window.TEK17Data.libraryItems = [
   window.TEK17Data.legalReferences.tek17,
   window.TEK17Data.legalReferences.tek17Guide,
@@ -88,6 +112,21 @@ window.TEK17Data.libraryItems = [
   window.TEK17Data.legalReferences.fire,
   window.TEK17Data.legalReferences.fireGuide,
   window.TEK17Data.legalReferences.exceptions,
+  window.TEK17Data.legalReferences.section11_1,
+  window.TEK17Data.legalReferences.section11_4,
+  window.TEK17Data.legalReferences.section11_5,
+  window.TEK17Data.legalReferences.section11_6,
+  window.TEK17Data.legalReferences.section11_7,
+  window.TEK17Data.legalReferences.section11_8,
+  window.TEK17Data.legalReferences.section11_9,
+  window.TEK17Data.legalReferences.section11_10,
+  window.TEK17Data.legalReferences.section11_11,
+  window.TEK17Data.legalReferences.section11_12,
+  window.TEK17Data.legalReferences.section11_13,
+  window.TEK17Data.legalReferences.section11_14,
+  window.TEK17Data.legalReferences.section11_15,
+  window.TEK17Data.legalReferences.section11_16,
+  window.TEK17Data.legalReferences.section11_17,
   window.TEK17Data.legalReferences.measure93,
   window.TEK17Data.legalReferences.measure94,
   window.TEK17Data.legalReferences.measureGuide,

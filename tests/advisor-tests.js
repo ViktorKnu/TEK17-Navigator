@@ -68,6 +68,50 @@ function expectIncludes(label, actual, expected) {
     await advisor.answerQuestion("Hva er beste kaffemaskin?", data.legalReferences),
     "Utenfor kildegrunnlaget",
   );
+  expectIncludes(
+    "Kildegrunnlaget dekker hele kapittel 11",
+    String(advisor.sources.some((source) => source.section.includes("11-17"))),
+    "true",
+  );
+  expectIncludes(
+    "Kildebitene har eksplisitt kildetype",
+    String(advisor.sources.every((source) => source.sourceType && source.section && source.paragraph)),
+    "true",
+  );
+  expectIncludes(
+    "Ventilasjonsproblem treffer paragraf 11-10",
+    (await advisor.answerQuestion("Hvordan sikres en ventilasjonskanal gjennom en branncellevegg?", data.legalReferences)),
+    "§ 11-10",
+  );
+  expectIncludes(
+    "Eksplosjonsfare treffer paragraf 11-5",
+    (await advisor.answerQuestion("Hva kreves i et rom med eksplosjonsfare og trykkavlastning?", data.legalReferences)),
+    "§ 11-5",
+  );
+  expectIncludes(
+    "Rømningsbredde treffer paragraf 11-14",
+    (await advisor.answerQuestion("Hvor bred må rømningsveien være i risikoklasse 6?", data.legalReferences)),
+    "§ 11-14",
+  );
+  expectIncludes(
+    "Rømningsbredde får med konkret preakseptert ytelse",
+    (await advisor.answerQuestion("Hvor bred må rømningsveien være i risikoklasse 6?", data.legalReferences)),
+    "minst 1,16 meter",
+  );
+  expectIncludes(
+    "Svar skiller preakseptert ytelse fra andre kildetyper",
+    (await advisor.answerQuestion("Hvor bred må rømningsveien være i risikoklasse 6?", data.legalReferences)),
+    "Kildetype:</strong> Preakseptert ytelse",
+  );
+
+  const focusedMatches = advisor.retrieveSources("Hva kreves ved eksplosjonsfare?", advisor.sources);
+  const broadMatches = advisor.retrieveSources(
+    "Vurder rømningsvei, utgang, sprinkler og brannvesenets atkomst i et bygg med flere etasjer",
+    advisor.sources,
+  );
+  expectIncludes("Fokusert søk gir få kilder", String(focusedMatches.length <= 3), "true");
+  expectIncludes("Bred problemstilling kan hente mer enn tre kilder", String(broadMatches.length > 3), "true");
+  expectIncludes("Dynamisk søk stopper ved seks kilder", String(broadMatches.length <= 6), "true");
 
   const originalFetch = global.fetch;
   const calls = [];
@@ -91,7 +135,8 @@ function expectIncludes(label, actual, expected) {
   advisor.localLlmConfig.onStatus = (event) => statusEvents.push(event.kind);
   advisor.resetLocalModelCheck();
   await advisor.prepareLocalLlm();
-  const localAnswer = await advisor.askLocalLlm("Hva avgjør risikoklasse?", [advisor.sources[0]], data.legalReferences);
+  const riskSource = advisor.sources.find((source) => source.id === "11-2-table");
+  const localAnswer = await advisor.askLocalLlm("Hva avgjør risikoklasse?", [riskSource], data.legalReferences);
   advisor.localLlmConfig.enabled = false;
   advisor.localLlmConfig.onStatus = null;
   global.fetch = originalFetch;
@@ -103,7 +148,7 @@ function expectIncludes(label, actual, expected) {
   expectIncludes("Lokal LLM bruker kort svargrense", JSON.stringify(chatBody.options), "num_predict");
   expectIncludes("Lokal LLM begrenser svaret til 220 tokens", String(chatBody.options.num_predict), "220");
   expectIncludes("Lokal LLM holdes varm", chatBody.keep_alive, "10m");
-  expectIncludes("Lokal LLM får veiledningskilde", chatBody.messages.map((message) => message.content).join(" "), "Veiledning");
+  expectIncludes("Lokal LLM får kildetype", chatBody.messages.map((message) => message.content).join(" "), "preakseptert-ytelse");
   expectIncludes("Lokal LLM får problemstillingsinstruks", chatBody.messages.map((message) => message.content).join(" "), "Preakseptert spor");
   expectIncludes("Lokal LLM får konkrete veiledningspunkter", chatBody.messages.map((message) => message.content).join(" "), "Konkrete punkter");
   expectIncludes("Lokal LLM forbys å legge til egne eksempler", chatBody.messages.map((message) => message.content).join(" "), "Ikke legg til egne eksempler");

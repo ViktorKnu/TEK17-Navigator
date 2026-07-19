@@ -30,16 +30,25 @@ function renderSourceAnswer(source, legalReferences) {
   return `
     <section>
       <h3>${source.title}</h3>
+      <p><strong>Kildetype:</strong> ${sourceTypeLabel(source.sourceType)}${source.section ? ` · ${source.section}` : ""}${source.paragraph ? ` · ${source.paragraph}` : ""}</p>
       <p><strong>Kort svar:</strong> ${source.shortAnswer}</p>
       ${renderProblemAssessment(source)}
       ${renderKeyPoints(source)}
       <p><strong>I praksis:</strong> ${source.practicalMeaning}</p>
-      <p><strong>Vurder nærmere:</strong> ${source.assessmentNote}</p>
+      <p><strong>Faglig merknad:</strong> ${source.assessmentNote}</p>
       <div class="source-list">
         ${refs.map(referenceLink).join("")}
       </div>
     </section>
   `;
+}
+
+function sourceTypeLabel(sourceType) {
+  return {
+    "forskriftskrav": "Forskriftskrav",
+    "veiledning": "Veiledning",
+    "preakseptert-ytelse": "Preakseptert ytelse",
+  }[sourceType] ?? "Kildegrunnlag";
 }
 
 function renderKeyPoints(source) {
