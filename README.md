@@ -98,8 +98,8 @@ dist/desktop/
 Desktop-release bygges av GitHub Actions når en versjonstag pushes, for eksempel:
 
 ```powershell
-git tag -a v1.4.0 -m "TEK17 Navigator v1.4.0"
-git push origin v1.4.0
+git tag -a v1.5.0 -m "TEK17 Navigator v1.5.0"
+git push origin v1.5.0
 ```
 
 Workflowen bygger Windows-app og publiserer filene på GitHub Releases.

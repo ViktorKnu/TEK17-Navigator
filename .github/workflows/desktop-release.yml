@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: "Release tag, for eksempel v1.4.0"
+        description: "Release tag, for eksempel v1.5.0"
         required: true
-        default: "v1.4.0"
+        default: "v1.5.0"
 
 permissions:
   contents: write
@@ -57,7 +57,10 @@ jobs:
           - Portable app: TEK17 Navigator $version.exe
           - Modellvalg for Qwen 3, Gemma 3 og norsktilpasset Borealis
           - Qwen 3 4B som raskt standardvalg med kortere, kildebundne svar
-          - TEK17/SAK10-klassifisering og RAG-grunnlag med forskrift og veiledning
+          - 33 kildebiter som dekker TEK17 §§ 11-1 til 11-17 med veiledning
+          - Tydelig skille mellom forskriftskrav, veiledning og preaksepterte ytelser
+          - Forbedret RAG-søk med fagfraser, synonymer, treffterskel og dynamisk kildeantall
+          - TEK17/SAK10-klassifisering med kildebasert fallback uten lokal modell
 
           Ollama må være installert for lokal LLM. Appen forsøker å starte Ollama automatisk hvis den finner ollama.exe.
           "@
