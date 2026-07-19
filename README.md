@@ -10,6 +10,17 @@ Appen samler tre arbeidsflater:
 
 Målet er ikke å erstatte faglig vurdering, men å gjøre det raskere å finne riktig spor, se aktuelle hjemler og dokumentere hvorfor en vurdering peker i en bestemt retning.
 
+## Kostnadsprinsipp
+
+TEK17 Navigator skal kunne utvikles, bygges, distribueres og brukes uten betalte tjenester eller løpende kostnader.
+
+- ingen betalte LLM-API-er, skytjenester eller abonnementer
+- lokal AI via Ollama og fritt tilgjengelige modellvekter
+- GitHub Pages, Actions og Releases brukes bare innenfor kostnadsfrie rammer
+- ingen kjøp av sertifikat for Windows-kodesignering
+
+Desktopfilene distribueres derfor usignert. Windows kan vise et SmartScreen-varsel ved første oppstart. Et eget appikon kan fortsatt lages og brukes kostnadsfritt. Dersom en tjeneste eller modell senere krever betaling, skal den ikke bli en nødvendig del av appen.
+
 ## Nettversjon
 
 Den publiserte webappen ligger her:
