@@ -35,7 +35,7 @@ const tabIntroTexts = {
   classify:
     "Brannfaglig klassifisering med sporbar hjemmel. Velg byggtype, juster kriteriene og få forslag til risikoklasse, brannklasse og tiltaksklasse med begrunnelse.",
   library:
-    "Samlet oversikt over lovhjemler, veiledning og fagstoff som brukes i vurderingene. Bruk fanen til å kontrollere kilder og lese videre hos DIBK.",
+    "Samlet oversikt over lovhjemler, veiledning og faglige anvisninger. Kildetypene holdes adskilt, og beskyttet fulltekst lagres ikke i appen.",
 };
 const isLocalAssistantRuntime = window.TEK17Advisor.localLlmConfig.enabled;
 
@@ -278,18 +278,47 @@ function getUsageSearchResults() {
 }
 
 function renderLibrary() {
-  $("libraryGrid").innerHTML = libraryItems
-    .map(
-      (item) => `
-        <article class="library-card">
-          <span class="tag">${item.tag}</span>
-          <h3>${item.title}</h3>
-          <p>${item.summary}</p>
-          <a href="${item.url}" target="_blank" rel="noreferrer">Åpne kilde</a>
-        </article>
-      `,
-    )
-    .join("");
+  const regulatoryItems = libraryItems.filter((item) => item.kind !== "byggforsk");
+  const byggforskItems = libraryItems.filter((item) => item.kind === "byggforsk");
+
+  $("libraryGrid").innerHTML = `
+    ${renderLibrarySection(
+      "Forskrift og veiledning",
+      "Juridisk svargrunnlag og offentlige veiledningskilder.",
+      regulatoryItems,
+    )}
+    ${renderLibrarySection(
+      "Byggforsk faglige anvisninger",
+      `Faglig fordypning fra SINTEF. Ikke forskriftskrav eller preaksepterte ytelser. Metadata kontrollert ${window.TEK17Data.byggforskCatalog?.[0]?.verifiedDate ?? "ukjent dato"}.`,
+      byggforskItems,
+    )}
+  `;
+}
+
+function renderLibrarySection(title, description, items) {
+  return `
+    <section class="library-section">
+      <div class="library-section-heading">
+        <h3>${title}</h3>
+        <p>${description}</p>
+      </div>
+      <div class="library-card-grid">
+        ${items.map(renderLibraryCard).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderLibraryCard(item) {
+  return `
+    <article class="library-card">
+      <span class="tag">${item.tag}</span>
+      <h3>${item.title}</h3>
+      ${item.version ? `<p class="library-meta">Versjon ${item.version} · ${item.accessStatus}</p>` : ""}
+      <p>${item.summary}</p>
+      <a href="${item.url}" target="_blank" rel="noreferrer">${item.tag === "SINTEF Byggforsk" ? "Åpne hos Byggforsk" : "Åpne kilde"}</a>
+    </article>
+  `;
 }
 
 function applyUsagePreset(usageId) {

@@ -5,6 +5,7 @@ global.window = global;
 const root = path.resolve(__dirname, "..");
 
 require(path.join(root, "src/domain/data/legalReferences.js"));
+require(path.join(root, "src/domain/data/byggforskCatalog.js"));
 require(path.join(root, "src/features/advisor/advisorSources.js"));
 require(path.join(root, "src/features/advisor/retrieval.js"));
 require(path.join(root, "src/features/advisor/answerBuilder.js"));
@@ -103,6 +104,33 @@ function expectIncludes(label, actual, expected) {
     (await advisor.answerQuestion("Hvor bred må rømningsveien være i risikoklasse 6?", data.legalReferences)),
     "Kildetype:</strong> Preakseptert ytelse",
   );
+  expectIncludes("Byggforsk-katalogen har 14 anvisninger", String(data.byggforskCatalog.length), "14");
+  expectIncludes(
+    "Byggforsk er alltid merket som faglig anvisning",
+    String(data.byggforskCatalog.every((source) => source.sourceType === "faglig-anvisning")),
+    "true",
+  );
+  expectIncludes(
+    "Byggforsk lagrer bare offentlig katalogmetadata",
+    String(data.byggforskCatalog.every((source) => source.paragraph === "Offentlig katalogmetadata")),
+    "true",
+  );
+  const branntettingMatches = advisor.retrieveSources(
+    "Hvordan utføres branntetting av rørgjennomføringer?",
+    data.byggforskCatalog,
+  );
+  expectIncludes("Branntetting finner riktig Byggforsk-anvisning", branntettingMatches[0]?.number ?? "", "520.342");
+  const branntettingAnswer = await advisor.answerQuestion(
+    "Hvordan sikres branntetting av rørgjennomføringer i en branncellevegg?",
+    data.legalReferences,
+  );
+  expectIncludes("Assistenten viser Byggforsk som faglig fordypning", branntettingAnswer, "Relevant faglig fordypning");
+  expectIncludes("Assistenten viser ekstern tilgang", branntettingAnswer, "Krever ekstern tilgang");
+  expectIncludes(
+    "Assistenten avgrenser Byggforsk fra preakseptert ytelse",
+    branntettingAnswer,
+    "ikke i seg selv forskriftskrav eller preaksepterte ytelser",
+  );
 
   const focusedMatches = advisor.retrieveSources("Hva kreves ved eksplosjonsfare?", advisor.sources);
   const broadMatches = advisor.retrieveSources(
@@ -137,6 +165,10 @@ function expectIncludes(label, actual, expected) {
   await advisor.prepareLocalLlm();
   const riskSource = advisor.sources.find((source) => source.id === "11-2-table");
   const localAnswer = await advisor.askLocalLlm("Hva avgjør risikoklasse?", [riskSource], data.legalReferences);
+  const localAnswerWithByggforsk = await advisor.answerQuestion(
+    "Hvordan sikres branntetting av rørgjennomføringer i en branncellevegg?",
+    data.legalReferences,
+  );
   advisor.localLlmConfig.enabled = false;
   advisor.localLlmConfig.onStatus = null;
   global.fetch = originalFetch;
@@ -152,6 +184,13 @@ function expectIncludes(label, actual, expected) {
   expectIncludes("Lokal LLM får problemstillingsinstruks", chatBody.messages.map((message) => message.content).join(" "), "Preakseptert spor");
   expectIncludes("Lokal LLM får konkrete veiledningspunkter", chatBody.messages.map((message) => message.content).join(" "), "Konkrete punkter");
   expectIncludes("Lokal LLM forbys å legge til egne eksempler", chatBody.messages.map((message) => message.content).join(" "), "Ikke legg til egne eksempler");
+  const byggforskChatBody = JSON.parse(calls.filter((call) => call.url.endsWith("/api/chat")).at(-1).options.body);
+  expectIncludes(
+    "Byggforsk-metadata sendes ikke til språkmodellen",
+    String(!byggforskChatBody.messages.map((message) => message.content).join(" ").includes("520.342")),
+    "true",
+  );
+  expectIncludes("Byggforsk legges til etter lokalt LLM-svar", localAnswerWithByggforsk, "520.342 Branntetting av gjennomføringer");
   expectIncludes("Standardmodell er rask Qwen instruct", chatBody.model, "qwen3:4b-instruct");
   expectIncludes("Modellvalg beskriver fordeler", advisor.localLlmModels[0].advantages.join(" "), "bokmål");
   expectIncludes("Modellvalg beskriver begrensninger", advisor.localLlmModels[0].limitations.join(" "), "Mindre kapasitet");

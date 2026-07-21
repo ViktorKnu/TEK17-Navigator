@@ -100,7 +100,11 @@ function searchableFields(source) {
     source.section,
     source.paragraph,
     source.sourceType,
+    source.number,
     source.title,
+    source.summary,
+    source.publisher,
+    source.accessStatus,
     source.shortAnswer,
     source.practicalMeaning,
     source.assessmentNote,
@@ -110,6 +114,7 @@ function searchableFields(source) {
     ...(source.topics ?? []),
     ...(source.phrases ?? []),
     ...(source.keyPoints ?? []),
+    ...(source.relevantSections ?? []),
   ]
     .filter(Boolean)
     .map(normalize);
@@ -143,6 +148,7 @@ function sourceTypePriority(source) {
     "forskriftskrav": 0,
     "preakseptert-ytelse": 1,
     "veiledning": 2,
+    "faglig-anvisning": 3,
   }[source.sourceType] ?? 3;
 }
 

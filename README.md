@@ -151,6 +151,14 @@ For å holde responstiden nede og redusere frie tillegg er lokale svar begrenset
 
 Assistenten skal bare svare fra kilder som er lagt inn i appen. RAG-grunnlaget dekker hele TEK17 kapittel 11 og deler inn stoffet i mindre kildebiter etter paragraf, ledd eller tema. Hver kildebit er merket som forskriftskrav, veiledning eller preakseptert ytelse. Appens egne vurderingspåminnelser vises separat som faglige merknader.
 
+### Byggforskserien
+
+Appen har en kostnadsfri katalog med offentlig metadata for 14 branntekniske Byggforsk-anvisninger, kontrollert 21. juli 2026. Katalogen inneholder anvisningsnummer, tittel, versjon, tema, relevant TEK17-paragraf, tilgangsstatus og lenke til SINTEF. Den inneholder ikke fulltekst, tabeller, tegninger eller annet abonnementsinnhold.
+
+Byggforsk vises bare som faglig fordypning. En anvisning er ikke automatisk et forskriftskrav eller en preakseptert ytelse, og brukes derfor ikke som juridisk svargrunnlag av den lokale språkmodellen. Fulltekst må åpnes hos Byggforsk og krever ekstern tilgang.
+
+Katalogen bygger på SINTEFs offentlige [oversikt over brannanvisninger](https://www.byggforsk.no/innhold/588/brann). Se også [om Byggforskserien](https://www.byggforsk.no/side/198/hva_er_byggforskserien) og [abonnementsvilkårene](https://www.byggforsk.no/file/index/5375).
+
 Kildegrunnlaget omfatter blant annet:
 
 - TEK17 §§ 11-1 til 11-17 med veiledning

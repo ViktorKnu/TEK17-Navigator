@@ -24,6 +24,34 @@ window.TEK17Advisor.buildAnswer = function buildAnswer(question, matchedSources,
   `;
 };
 
+window.TEK17Advisor.renderByggforskRecommendations = function renderByggforskRecommendations(matches) {
+  if (!matches?.length) return "";
+
+  return `
+    <section class="byggforsk-recommendations">
+      <h3>Relevant faglig fordypning</h3>
+      <p>Disse Byggforsk-anvisningene er faglige hjelpemidler. De er ikke i seg selv forskriftskrav eller preaksepterte ytelser.</p>
+      <div class="byggforsk-list">
+        ${matches.map(renderByggforskRecommendation).join("")}
+      </div>
+    </section>
+  `;
+};
+
+function renderByggforskRecommendation(source) {
+  return `
+    <div class="byggforsk-item">
+      <p><strong>${escapeHtml(source.number)} ${escapeHtml(source.title)}</strong> · versjon ${escapeHtml(source.version)}</p>
+      <p>Faglig relevant for TEK17 ${escapeHtml(source.relevantSections.join(", "))}.</p>
+      <p class="source-line">
+        <span>Faglig anvisning</span>
+        <a href="${escapeHtml(source.url)}" target="_blank" rel="noreferrer">Åpne hos SINTEF Byggforsk</a>
+      </p>
+      <p class="access-note">${escapeHtml(source.accessStatus)}. Fullteksten er ikke lagret i TEK17 Navigator.</p>
+    </div>
+  `;
+}
+
 function renderSourceAnswer(source, legalReferences) {
   const refs = getReferences(source, legalReferences);
 
