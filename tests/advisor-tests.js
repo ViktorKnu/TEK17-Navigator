@@ -178,7 +178,7 @@ function expectIncludes(label, actual, expected) {
   expectIncludes("Lokal LLM viser status", statusEvents.join(" "), "pulling");
   const chatBody = JSON.parse(calls.find((call) => call.url.endsWith("/api/chat")).options.body);
   expectIncludes("Lokal LLM bruker kort svargrense", JSON.stringify(chatBody.options), "num_predict");
-  expectIncludes("Lokal LLM begrenser svaret til 220 tokens", String(chatBody.options.num_predict), "220");
+  expectIncludes("Lokal LLM begrenser svaret til 240 tokens", String(chatBody.options.num_predict), "240");
   expectIncludes("Lokal LLM holdes varm", chatBody.keep_alive, "10m");
   expectIncludes("Lokal LLM får kildetype", chatBody.messages.map((message) => message.content).join(" "), "preakseptert-ytelse");
   expectIncludes("Lokal LLM får problemstillingsinstruks", chatBody.messages.map((message) => message.content).join(" "), "Preakseptert spor");
@@ -186,9 +186,34 @@ function expectIncludes(label, actual, expected) {
   expectIncludes("Lokal LLM forbys å legge til egne eksempler", chatBody.messages.map((message) => message.content).join(" "), "Ikke legg til egne eksempler");
   const byggforskChatBody = JSON.parse(calls.filter((call) => call.url.endsWith("/api/chat")).at(-1).options.body);
   expectIncludes(
-    "Byggforsk-metadata sendes ikke til språkmodellen",
-    String(!byggforskChatBody.messages.map((message) => message.content).join(" ").includes("520.342")),
-    "true",
+    "Offentlig Byggforsk-metadata sendes til språkmodellen",
+    byggforskChatBody.messages.map((message) => message.content).join(" "),
+    "520.342",
+  );
+  expectIncludes(
+    "Byggforsk er merket som ikke-juridisk svargrunnlag i prompten",
+    byggforskChatBody.messages.map((message) => message.content).join(" "),
+    "ikke juridisk svargrunnlag",
+  );
+  expectIncludes(
+    "Modellen forbys å påstå innhold i Byggforsk-fulltekst",
+    byggforskChatBody.messages.map((message) => message.content).join(" "),
+    "Ikke påstå hva fullteksten sier",
+  );
+  expectIncludes(
+    "Modellen får tilgangsstatus for Byggforsk",
+    byggforskChatBody.messages.map((message) => message.content).join(" "),
+    "Krever ekstern tilgang",
+  );
+  expectIncludes(
+    "Modellen skal velge høyst én Byggforsk-anvisning",
+    byggforskChatBody.messages.map((message) => message.content).join(" "),
+    "høyst én mest relevant anvisning",
+  );
+  expectIncludes(
+    "Modellen får fast tilgangsmerknad for Byggforsk",
+    byggforskChatBody.messages.map((message) => message.content).join(" "),
+    "fulltekst krever ekstern tilgang",
   );
   expectIncludes("Byggforsk legges til etter lokalt LLM-svar", localAnswerWithByggforsk, "520.342 Branntetting av gjennomføringer");
   expectIncludes("Standardmodell er rask Qwen instruct", chatBody.model, "qwen3:4b-instruct");

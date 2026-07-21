@@ -82,14 +82,20 @@ window.TEK17Advisor.localLlmConfig = {
     top_k: 20,
     top_p: 0.8,
     num_ctx: 2048,
-    num_predict: 220,
+    num_predict: 240,
   },
   onStatus: null,
 };
 
 let localModelReadyPromise = null;
 
-window.TEK17Advisor.askLocalLlm = async function askLocalLlm(question, matchedSources, legalReferences, context = {}) {
+window.TEK17Advisor.askLocalLlm = async function askLocalLlm(
+  question,
+  matchedSources,
+  legalReferences,
+  context = {},
+  byggforskSources = [],
+) {
   const config = window.TEK17Advisor.localLlmConfig;
   if (!config.enabled || !matchedSources.length) return null;
 
@@ -106,11 +112,11 @@ window.TEK17Advisor.askLocalLlm = async function askLocalLlm(question, matchedSo
       {
         role: "system",
         content:
-          "Du er TEK17 Navigator sin lokale fagassistent. Svar kun på norsk. Bruk bare opplysninger som står uttrykkelig i forskriften og veiledningen i kildegrunnlaget. For problemstillinger skal du først lete etter om situasjonen er dekket av VTEK/veiledning og preaksepterte ytelser. Hvis den er dekket, si at den ser ut til å følge preakseptert spor og vis til kilden. Hvis den ikke er dekket, si tydelig at den ikke står i kildegrunnlaget og må vurderes som fravik, analyse eller særskilt dokumentasjon. Ikke legg til egne eksempler, kontrollpunkter, paragrafer, krav, standarder eller tall.",
+          "Du er TEK17 Navigator sin lokale fagassistent. Svar kun på norsk. Bruk bare opplysninger som står uttrykkelig i forskriften og veiledningen i det juridiske kildegrunnlaget når du omtaler krav, preaksepterte ytelser eller dokumentasjon. For problemstillinger skal du først lete etter om situasjonen er dekket av VTEK/veiledning og preaksepterte ytelser. Hvis den er dekket, si at den ser ut til å følge preakseptert spor og vis til kilden. Hvis den ikke er dekket, si tydelig at den ikke står i kildegrunnlaget og må vurderes som fravik, analyse eller særskilt dokumentasjon. Byggforsk-delen inneholder bare offentlig katalogmetadata. Bruk den kun til å anbefale høyst én mest relevant anvisning for videre lesning, og opplys at fullteksten krever ekstern tilgang. Ikke påstå hva fullteksten sier, og ikke framstill anvisningen som forskriftskrav, preakseptert ytelse eller dokumentasjon på forskriftsoppfyllelse. Ikke legg til egne eksempler, kontrollpunkter, paragrafer, krav, standarder eller tall.",
       },
       {
         role: "user",
-        content: buildLocalPrompt(question, matchedSources, legalReferences, context),
+        content: buildLocalPrompt(question, matchedSources, legalReferences, context, byggforskSources),
       },
     ],
     options: config.generationOptions,
@@ -296,7 +302,7 @@ function isLocalLlmEnabledByUser() {
   }
 }
 
-function buildLocalPrompt(question, matchedSources, legalReferences, context) {
+function buildLocalPrompt(question, matchedSources, legalReferences, context, byggforskSources) {
   const sourceText = matchedSources
     .map((source) => {
       const refs = getReferences(source, legalReferences);
@@ -328,12 +334,41 @@ function buildLocalPrompt(question, matchedSources, legalReferences, context) {
     "Kildegrunnlag:",
     sourceText,
     "",
-    "Svar med maks 8 korte linjer:",
+    buildByggforskPromptSection(byggforskSources),
+    "",
+    "Svar med maks 6 korte linjer. Hver linje skal ha høyst 18 ord:",
     "1. Kort konklusjon",
     "2. Treffer problemstillingen VTEK/veiledningen?",
     "3. Er dette preakseptert, eller står det ikke i kildegrunnlaget?",
     "4. Relevant hjemmel/kilde",
     "5. Eventuelt avvik, analysebehov eller mulig videre løsning",
+    "6. Hvis det finnes katalogtreff, avslutt nøyaktig slik: Byggforsk: [nummer] [tittel] (fulltekst krever ekstern tilgang).",
+  ].join("\n");
+}
+
+function buildByggforskPromptSection(sources) {
+  if (!sources?.length) {
+    return "Byggforsk-katalogmetadata: Ingen relevante treff.";
+  }
+
+  const metadata = sources
+    .slice(0, 3)
+    .map((source) => [
+      source.number,
+      source.title,
+      `versjon ${source.version}`,
+      `relevant for TEK17 ${source.relevantSections.join(", ")}`,
+      `tema: ${source.topics.join(", ")}`,
+      source.accessStatus,
+      source.url,
+    ].join(" | "))
+    .map((line) => `- ${line}`)
+    .join("\n");
+
+  return [
+    "Byggforsk-katalogmetadata (faglig fordypning, ikke juridisk svargrunnlag):",
+    metadata,
+    "Katalogen sier bare hvilke anvisninger som kan være relevante. Den sier ikke hva fullteksten krever eller anbefaler.",
   ].join("\n");
 }
 

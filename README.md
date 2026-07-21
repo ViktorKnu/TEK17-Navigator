@@ -145,7 +145,7 @@ Faktisk hastighet avhenger særlig av RAM, CPU og GPU. Første svar etter oppsta
 
 En lokal sammenligning på en PC med Intel Core i7-1360P, 16 GB RAM og integrert grafikk viste at den optimaliserte Qwen 3 4B-profilen svarte på omtrent 51 sekunder ved kald start og 23 sekunder når modellen var varm. Llama 3.1 8B brukte omtrent 78 og 38 sekunder på samme problemstilling. Resultatene vil variere mellom maskiner, men målingen støtter Qwen 3 4B som raskt standardvalg.
 
-For å holde responstiden nede og redusere frie tillegg er lokale svar begrenset til 220 genererte tokens og maksimalt åtte korte linjer. Modellen instrueres til ikke å legge til eksempler eller kontrollpunkter som ikke står uttrykkelig i kildegrunnlaget.
+For å holde responstiden nede og redusere frie tillegg er lokale svar begrenset til 240 genererte tokens og maksimalt seks korte linjer. Modellen instrueres til ikke å legge til eksempler eller kontrollpunkter som ikke står uttrykkelig i kildegrunnlaget.
 
 ## Faglig Avgrensning
 
@@ -155,7 +155,7 @@ Assistenten skal bare svare fra kilder som er lagt inn i appen. RAG-grunnlaget d
 
 Appen har en kostnadsfri katalog med offentlig metadata for 14 branntekniske Byggforsk-anvisninger, kontrollert 21. juli 2026. Katalogen inneholder anvisningsnummer, tittel, versjon, tema, relevant TEK17-paragraf, tilgangsstatus og lenke til SINTEF. Den inneholder ikke fulltekst, tabeller, tegninger eller annet abonnementsinnhold.
 
-Byggforsk vises bare som faglig fordypning. En anvisning er ikke automatisk et forskriftskrav eller en preakseptert ytelse, og brukes derfor ikke som juridisk svargrunnlag av den lokale språkmodellen. Fulltekst må åpnes hos Byggforsk og krever ekstern tilgang.
+Byggforsk vises bare som faglig fordypning. En anvisning er ikke automatisk et forskriftskrav eller en preakseptert ytelse, og brukes derfor ikke som juridisk svargrunnlag av den lokale språkmodellen. Inntil tre relevante katalogtreff kan sendes til Ollama med nummer, tittel, versjon, tema, TEK17-relevans, tilgangsstatus og lenke. Modellen skal velge høyst én anvisning å nevne, opplyse at fullteksten krever ekstern tilgang og aldri anta hva fullteksten sier eller bruke anvisningen som dokumentasjon på forskriftsoppfyllelse. Fulltekst må åpnes hos Byggforsk.
 
 Katalogen bygger på SINTEFs offentlige [oversikt over brannanvisninger](https://www.byggforsk.no/innhold/588/brann). Se også [om Byggforskserien](https://www.byggforsk.no/side/198/hva_er_byggforskserien) og [abonnementsvilkårene](https://www.byggforsk.no/file/index/5375).
 

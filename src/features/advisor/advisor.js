@@ -24,7 +24,13 @@ window.TEK17Advisor.answerQuestion = async function answerQuestion(question, leg
   ).slice(0, 3);
   const byggforskRecommendations = window.TEK17Advisor.renderByggforskRecommendations(matchedByggforsk);
   try {
-    const localAnswer = await window.TEK17Advisor.askLocalLlm(question, matchedSources, legalReferences, context);
+    const localAnswer = await window.TEK17Advisor.askLocalLlm(
+      question,
+      matchedSources,
+      legalReferences,
+      context,
+      matchedByggforsk,
+    );
     if (localAnswer) return `${localAnswer}${byggforskRecommendations}`;
   } catch (error) {
     window.TEK17Advisor.localLlmConfig?.onStatus?.({
