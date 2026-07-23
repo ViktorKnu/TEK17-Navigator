@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: "Release tag, for eksempel v1.5.0"
+        description: "Release tag, for eksempel v1.6.0"
         required: true
-        default: "v1.5.0"
+        default: "v1.6.0"
 
 permissions:
   contents: write
@@ -60,6 +60,10 @@ jobs:
           - 33 kildebiter som dekker TEK17 §§ 11-1 til 11-17 med veiledning
           - Tydelig skille mellom forskriftskrav, veiledning og preaksepterte ytelser
           - Forbedret RAG-søk med fagfraser, synonymer, treffterskel og dynamisk kildeantall
+          - Katalog med offentlig metadata for 14 branntekniske Byggforsk-anvisninger
+          - Byggforsk vises tydelig som faglig fordypning, ikke som forskriftskrav eller preakseptert ytelse
+          - Ollama kan bruke inntil tre katalogtreff og anbefale høyst én relevant anvisning
+          - Byggforsk-fulltekst lagres ikke og sendes ikke til den lokale modellen
           - TEK17/SAK10-klassifisering med kildebasert fallback uten lokal modell
 
           Ollama må være installert for lokal LLM. Appen forsøker å starte Ollama automatisk hvis den finner ollama.exe.
